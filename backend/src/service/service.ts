@@ -28,6 +28,13 @@ class UserService{
             console.log(error)
         }
     }
+    async getusers(){
+        try {
+            return  User.find()
+        } catch (error) {
+            console.log(error)
+        }
+    }
 }
 
 export const UserServices = new UserService()

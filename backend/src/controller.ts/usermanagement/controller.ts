@@ -65,10 +65,22 @@ class UserController{
                 res.status(401).json({ message: "User already exist" })
                 return
             }
+            if(emailval){
+                res.status(401).json({message:"Email already exist"})
+            }
             const user = await UserServices.createUser(value)
             res.status(200).send(user)
         }catch(error){
-
+            console.log("Error",error)
+        }
+    }
+    getuser = async(req:Request,res:Response)=>{
+        try {
+           
+            const user = UserServices.getusers()
+            res.send(user).status(200)
+        } catch (error) {
+            console.log("Error",error)
         }
     }
 }
