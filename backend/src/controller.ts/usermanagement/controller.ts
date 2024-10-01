@@ -6,13 +6,14 @@ import Joi from "joi";
 import nodemailer from 'nodemailer'
 import dotenv, { secret_token } from "../../config/dotenv";
 import { configDotenv } from "dotenv";
-import { AuthenticatedRequest } from "../../authHandler/profilehandler";
+import { AuthenticatedRequest } from "../../authHandler/middlewareauthHandler";
 
-
-interface login{
-    username:string;
-    password:string;
-}
+interface LoginRequest extends Request {
+    body: {
+      username: string;
+      password: string;
+    };
+  }
 let otp_store: string[] = [];
 let emailstore: string[] = [];
 
@@ -102,27 +103,27 @@ class UserController{
         }
     }
     //login
-    loginUser = async(req:any,res:any)=>{
-        const {username,password}:login = req.body
+    loginUser = async (req: LoginRequest, res: any) => {
+        const { username, password } = req.body;
         try {
-            const user = await UserServices.getUserByUsername(username);
-            if(!user){
-                return res.status(400).json({message:"Invalid Username"});
-            }
-            const passwordMatch = await compare(password,user.password as string);
-            if(passwordMatch){
-                const payload = {username:username}
-                const jwtToken = sign(payload,secret_token);
-                return res.status(200).json({jwtToken,admin:user.isadmin})
-
-            }
-            else{
-                return res.status(400).json({message:"Invalid Password"});
-            }
+          const user = await UserServices.getUserByUsername(username);
+          if (!user) {
+            return res.status(400).json({ message: 'Invalid Username' });
+          }
+          const passwordMatch = await compare(password, user.password as string);
+          if (passwordMatch) {
+            const payload = { user: { id: user.id } };
+            const jwtToken = sign(payload, secret_token);
+            return res.status(200).json({ jwtToken, admin: user.isadmin });
+          } else {
+            return res.status(400).json({ message: 'Invalid Password' });
+          }
         } catch (error) {
-            console.log(error)
+          console.log(error);
+          return res.status(500).json({ message: 'Server Error' });
         }
-    }
+      };
+      
     //forgetpassword
     forgetUser = async (req: any, res: any) => {
         try {

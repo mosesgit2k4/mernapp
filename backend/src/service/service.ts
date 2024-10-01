@@ -46,7 +46,7 @@ class UserService {
     // Get user by ID
     async getusersByid(id: string) {
         try {
-            const user = await User.findById(id).lean(); // Using lean() for plain JS object
+            const user = await User.findById(id) // Using lean() for plain JS object
             if (!user) {
                 return 'User not found';
             }
@@ -159,6 +159,7 @@ class UserService {
             console.log("Error:", error);
         }
     }
+    //Get plan by id
     async getplanbyid(id:number){
         try {
             const plan = Plan.findById(id).lean()

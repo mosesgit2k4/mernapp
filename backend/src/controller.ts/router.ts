@@ -20,3 +20,4 @@ userManagementRouter.put('/myprofile', usersSessionHandler, UserControllers.upda
 userManagementRouter.post("/plans", UserControllers.createplan);  // Create a new plan
 userManagementRouter.get('/plans', UserControllers.getplan);  // Get all plans
 userManagementRouter.get('/plans/:planId', UserControllers.getplanid);  // Get plan by ID
+//api/usermanagement/myprofile
