@@ -1,0 +1,41 @@
+.box-register{
+    justify-content: center;
+    margin: 150px;
+    margin-left: 250px;
+    margin-right: 250px;
+    margin-top: 120px;
+    border-radius: 5px;
+    border-color: rgb(255, 39, 39);
+    border-style:solid;
+    padding: 30px;
+    background-color: rgb(255, 212, 56);
+    box-shadow: 10px 10px;
+}
+
+.name-design{
+    margin:15px;
+}
+.name{
+    font-family: "Roboto";
+    font-size: 17px;
+    margin:10px;
+}
+.register-button{
+    background-color: rgb(29, 29, 252);
+    color: white;
+    height: 35px;
+    width: 130px;
+    border-radius: 15px;
+    border-style: solid;
+    border-color: rgb(29, 29, 251);
+}
+.input-design{
+    border-radius: 10px;
+    border-color: white;
+    height: 16px;
+    
+
+}
+.image-design{
+    width: 230px;
+}

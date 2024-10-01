@@ -1,0 +1,57 @@
+.error-Message{
+    color: red;
+    font-family: "Roboto";
+}   
+.box-container{
+    background-color: aquamarine;
+    padding:15px;
+    background-size: cover;
+    height: 100vh;
+}
+.box{
+    justify-content: center;
+    margin: auto;
+    margin-left: 25%;
+    margin-right: 25%;
+    margin-top:5%;
+    border-radius: 5px;
+    border-color: rgb(255, 39, 39);
+    border-style:solid;
+    padding: 60px;
+    background-color: rgb(255, 212, 56);
+
+    box-shadow: 10px 10px;
+
+}
+.username-design{
+    font-family: "Roboto";
+    font-size: 18px;
+    font-weight: bold;
+    margin:2%;
+}
+@media only screen ,(orientation: landscape) and (min-width:600px){
+    .login-button{
+        margin-right:10%;
+    }
+  }
+.content{
+    margin-bottom: 2%;
+    margin-right: 10%;
+}
+.login-button{
+    text-align: center;
+    margin-top:2%;
+    margin-bottom: 2%;
+    margin-right: 25%;
+    color:white;
+    background-color: rgb(32, 32, 252);
+    height: 40px;
+    width: 100px;
+    margin-left: 50px;
+    border-radius: 15px;
+    border-style: solid;
+    border-color: rgb(32, 32, 255);
+}
+.forgetpassword{
+    margin-bottom: 2%;
+}

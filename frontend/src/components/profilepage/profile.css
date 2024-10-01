@@ -1,0 +1,35 @@
+
+.updated-Message{
+    color:red;
+    font-family: 'Times New Roman';
+    font-size: 28px;
+    font-weight: bold;
+}
+.homepage-container{
+    padding:30px;
+    border-style: solid;
+    margin-left:200px;
+    margin-right: 200px ;
+    margin-top: 60px;
+    box-shadow: 10px 10px;
+}
+.homepage-input-first{
+    margin-top: 50px;
+    margin-right: 200px;
+}
+
+.homepage-input-last{
+    margin-top:50px;
+    margin-left:200px;
+}
+.profile-image{
+    border-radius: 50px;
+    cursor: pointer;
+}
+img:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    opacity: 0.3 ;
+}
+img {
+    transition: box-shadow 0.3s ease-in-out;
+  }
