@@ -113,29 +113,30 @@ class UserService {
     // Update user details
     async updateuser(id: string, newfirstName: string, newlastName: string, newemail: string, newusername: string, newmobilephone: number, newimage: string) {
         try {
-            const update = await User.findByIdAndUpdate(
-                id,
-                {
-                    $set: {
-                        firstName: newfirstName,
-                        lastName: newlastName,
-                        email: newemail,
-                        username: newusername,
-                        mobilephone: newmobilephone,
-                        image: newimage
-                    }
-                },
-                { new: true } 
-            );
-            if (!update) {
-                return null;
-            }
-            return update;
+          const update = await User.findByIdAndUpdate(
+           {_id:id},
+            {
+              $set: {
+                firstName:newfirstName,
+                lastName:newlastName,
+                email:newemail,
+                username:newusername,
+                phonenumber:newmobilephone,
+                image:newimage
+              }
+            },
+            { new: true }
+          );
+      
+          if (!update) {
+            return null;
+          }
+          return update;
         } catch (error) {
-            console.log(error);
+          console.log(error);
         }
     }
-
+      
     // Create a new plan
     async createplans(plansData: CreatePlan) {
         try {

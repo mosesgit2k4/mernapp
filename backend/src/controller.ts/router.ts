@@ -14,10 +14,9 @@ userManagementRouter.put('/confirmpassword', UserControllers.confirmpassword);  
 
 // User Profile Management (protected routes)
 userManagementRouter.get('/myprofile', usersSessionHandler, UserControllers.getuserprofile);  // Get user profile
-userManagementRouter.put('/myprofile', usersSessionHandler, UserControllers.updateuser);  // Update user profile
+userManagementRouter.put('/myprofile', usersSessionHandler, UserControllers.Updateuser);  // Update user profile
 
 // Plan Management
 userManagementRouter.post("/plans", UserControllers.createplan);  // Create a new plan
 userManagementRouter.get('/plans', UserControllers.getplan);  // Get all plans
 userManagementRouter.get('/plans/:planId', UserControllers.getplanid);  // Get plan by ID
-//api/usermanagement/myprofile

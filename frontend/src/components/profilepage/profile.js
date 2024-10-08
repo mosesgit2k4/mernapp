@@ -67,15 +67,16 @@ function getapi (jwtToken){
             newfirstName: tempuser.firstName,
             newlastName: tempuser.lastName,
             newemail: tempuser.email,
-            newmobilephone: tempuser.mobilephone,
+            newmobilephone: tempuser.phonenumber,
             newimage: filebase641,
         }
+        console.log(userdetails)
         const cookies = new Cookies()
         const jwtToken = cookies.get("token_authenication")
 
-        await fetch('/api/usermanagement/myprofile', {
+        await fetch('api/usermanagement/myprofile', {
             method: "put",
-            headers: { "Authorization": `Bearer ${jwtToken}`},
+            headers: { "Authorization": `Bearer ${jwtToken}`,'Content-Type': 'application/json'},
             body: JSON.stringify(userdetails)
         }).then(response => response.json())
             .then(data => {
@@ -83,7 +84,6 @@ function getapi (jwtToken){
                 setclick(false)
                 setcount(true)
                 setchanged(false)
-                console.log(tempuser)
                 getapi(jwtToken)
 
             })
@@ -117,7 +117,7 @@ function getapi (jwtToken){
 
 
                         <div onClick={handleImageClick}>
-                            {image2 ? (<img src={URL.createObjectURL(image2) }alt="Avatar" width={100} height={100} className="profile-image" />) : (<img src = {user?.image} alt="Avatar" className="profile-image" width={100} height={100} />)}
+                            {image2 ? (<img src={URL.createObjectURL(image2) }alt = "Avatar" width={100} height={100} className="profile-image" />) : (<img src = {user?.image} alt="Avatar" className="profile-image" width={100} height={100} />)}
                             <input type="file" ref={inputRef} onChange={e => {
                                 setimage(e.target.files[0])
                                 setchanged(true)

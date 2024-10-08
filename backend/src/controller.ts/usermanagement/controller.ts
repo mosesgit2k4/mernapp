@@ -230,6 +230,7 @@ class UserController{
             const profileid = req.profileid;
             if(profileid){
                 const profile = profileid.toString()
+                console.log(profile)
                 const user = await UserServices.getusersByid(profile);
                 if (user) {
                     res.status(200).json(user);
@@ -243,7 +244,7 @@ class UserController{
           }
     }
     //update user
-    updateuser = async (req: AuthenticatedRequest, res: Response) => {
+    Updateuser = async (req: AuthenticatedRequest, res: Response) => {
         try {
             if(req.profileid !== undefined){
                 const idinobjectId = req.profileid;
@@ -251,8 +252,13 @@ class UserController{
             const { newfirstName, newlastName, newemail, newusername, newmobilephone, newimage } = req.body
             const updateduser = await UserServices.updateuser(id, newfirstName, newlastName, newemail, newusername, newmobilephone, newimage)
             if (updateduser) {
-                res.status(200).json({ message: "User updated successfully" })
-            }
+                res.status(200).json({ message: "User updated successfully" });
+              } else {
+                res.status(404).json({ message: "User not found" });
+              }
+            } else {
+              res.status(400).json({ message: "Profile ID is missing" });
+            
             }
         } catch (error) {
             console.log(error)
