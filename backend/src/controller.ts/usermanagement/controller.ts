@@ -106,22 +106,22 @@ class UserController{
     loginUser = async (req: LoginRequest, res: any) => {
         const { username, password } = req.body;
         try {
-          const user = await UserServices.getUserByUsername(username);
-          if (!user) {
-            return res.status(400).json({ message: 'Invalid Username' });
+            const user = await UserServices.getUserByUsername(username);
+            if (!user) {
+              return res.status(400).json({ message: 'Invalid Username' });
+            }
+            const passwordMatch = await compare(password, user.password as string);
+            if (passwordMatch) {
+              const payload = { _id: user._id };
+              const jwtToken = sign(payload, secret_token, { expiresIn: '1h' });
+              return res.status(200).json({ jwtToken, admin: user.isadmin });
+            } else {
+              return res.status(400).json({ message: 'Invalid Password' });
+            }
+          } catch (error) {
+            console.error('Login error:', error);
+            return res.status(500).json({ message: 'Server Error' });
           }
-          const passwordMatch = await compare(password, user.password as string);
-          if (passwordMatch) {
-            const payload = { user: { id: user.id } };
-            const jwtToken = sign(payload, secret_token);
-            return res.status(200).json({ jwtToken, admin: user.isadmin });
-          } else {
-            return res.status(400).json({ message: 'Invalid Password' });
-          }
-        } catch (error) {
-          console.log(error);
-          return res.status(500).json({ message: 'Server Error' });
-        }
       };
       
     //forgetpassword
@@ -227,19 +227,21 @@ class UserController{
     //getusers
     getuserprofile = async (req: AuthenticatedRequest, res: Response) => {
         try {
-            if(req.profileid !== undefined){
-                const id = req.profileid
-                const user = await UserServices.getusersByid(id)
+            const profileid = req.profileid;
+            if(profileid){
+                const profile = profileid.toString()
+                console.log(profile)
+                const user = await UserServices.getusersByid(profile);
                 if (user) {
-                    res.send(user).status(200)
-                }
-                else {
-                    res.status(401).json({ message: "User not Found" })
-                }
+                    res.status(200).json(user);
+                  } else {
+                    res.status(404).json({ message: 'User not found' });
+                  }
             }
-        } catch (error) {
-            console.log(error)
-        }
+          } catch (error) {
+            console.error('Get user profile error:', error);
+            res.status(500).json({ message: 'Server Error' });
+          }
     }
     //update user
     updateuser = async (req: AuthenticatedRequest, res: Response) => {

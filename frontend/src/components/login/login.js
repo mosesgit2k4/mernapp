@@ -29,7 +29,7 @@ function Login() {
             .then(data => {
                 if (data.message === "Invalid Username") { seterror("Invalid Username") }
                 if (data.message === "Invalid  Password") { seterror("Invalid Password") }
-                cookies.set('jwt_authorization', data.jwtToken, {
+                cookies.set('token_authenication', data.jwtToken, {
                     expires: new Date(Date.now() + 86400 * 1000)
                 });
 

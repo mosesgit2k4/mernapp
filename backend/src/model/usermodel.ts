@@ -1,8 +1,9 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Schema, Document, Model, ObjectId } from "mongoose";
 import bcrypt from "bcrypt";
 import Address from "./addressModel";
 
-interface IUser extends Document {
+export interface IUser extends Document {
+    _id:ObjectId
     firstName: string;
     lastName: string;
     email: string;

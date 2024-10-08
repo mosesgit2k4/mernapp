@@ -1,8 +1,8 @@
-import User from '../model/usermodel';
+import User, { IUser } from '../model/usermodel';
 import bcrypt from 'bcrypt';
 import Address from "../model/addressModel";
 import Plan from "../model/planModel";
-
+import { ObjectId } from 'mongoose';
 // Interfaces for type safety
 interface CreateUsers {
     firstName: string;
@@ -46,7 +46,7 @@ class UserService {
     // Get user by ID
     async getusersByid(id: string) {
         try {
-            const user = await User.findById(id) // Using lean() for plain JS object
+            const user = await User.findById(id).lean(); // Using lean() for plain JS object
             if (!user) {
                 return 'User not found';
             }
@@ -111,7 +111,7 @@ class UserService {
     
 
     // Update user details
-    async updateuser(id: string, newfirstName: string, newlastName: string, newemail: string, newusername: string, newmobilephone: number, newimage: string) {
+    async updateuser(id: object, newfirstName: string, newlastName: string, newemail: string, newusername: string, newmobilephone: number, newimage: string) {
         try {
             const update = await User.findByIdAndUpdate(
                 id,

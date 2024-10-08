@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import Cookies from "universal-cookie";     
+import Cookies from "universal-cookie";
 import './profile.css'
 import { Link, useNavigate } from "react-router-dom";
 
@@ -15,35 +15,32 @@ function ProfilePage() {
     const [filebase641, setfilebase64] = useState('')
     const [image2, setimage] = useState('')
 
-    /*fetch('api/usermanagement/myprofile', {
-        method: "Get",
+function getapi (jwtToken){
+    fetch('api/usermanagement/myprofile', {
+        method: "get",
         headers: { "Authorization": `Bearer ${jwtToken}` }
     })
         .then(response => { return response.json() })
         .then(data => {
             setuser(data)
             settempuser(data)
-        })*/
+        })
+}
 
-
+    useEffect(() => {
+        console.log(user);
+        console.log(tempuser);
+        console.log(changed)
+    },[])
 
     useEffect(() => {
         let numberofgetfromuseeffect = true
         const cookies = new Cookies()
-        const jwtToken = cookies.get("jwt_authorization")
+        const jwtToken = cookies.get("token_authenication")
         if (numberofgetfromuseeffect) {
-            fetch('api/usermanagement/myprofile', {
-                method: "Get",
-                headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${jwtToken}` }
-            })
-                .then(response => { return response.json() })
-                .then(data => {
-                    setuser(data)
-                    settempuser(data)
-                })
+            getapi(jwtToken)
         }
         numberofgetfromuseeffect = false
-        
     }, [])
     function handlelogout() {
         navigator('/login')
@@ -96,6 +93,8 @@ function ProfilePage() {
             })
         
         //console.log(jwtToken)
+        getapi(jwtToken)
+
     }
     return (
         <>

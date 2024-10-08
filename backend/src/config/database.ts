@@ -6,7 +6,7 @@ export const connectDB = async()=>{
         const conn = await mongoose.connect(dotenv.mongo_url)
        console.log("MongoDb Created",conn.connection.host)
     } catch (error) {
-        console.log(`Error:${error}`);
+        console.log(`${error}`);
         process.exit(1)
     }
 }

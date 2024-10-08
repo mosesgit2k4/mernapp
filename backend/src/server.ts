@@ -4,5 +4,5 @@ import app from './app';
 const PORT = dotenv.PORT
 app.listen(PORT,()=>{
     connectDB()
-    console.log("Server running ")
+    console.log(`Server running ${PORT}`)
 })

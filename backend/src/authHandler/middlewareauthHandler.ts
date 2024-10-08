@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { verify } from 'jsonwebtoken';
+import { JwtPayload, verify } from 'jsonwebtoken';
 import { secret_token } from '../config/dotenv';
-import User from '../model/usermodel';
+import User, { IUser } from '../model/usermodel';
+import { Types } from 'mongoose';
 
 export interface AuthenticatedRequest extends Request {
-  profileid?: string;
+  profileid?:Types.ObjectId;
 }
 
 
@@ -19,19 +20,18 @@ const usersSessionHandler = async (req: AuthenticatedRequest, res: any, next: Ne
   if (!jwtToken) {
     return res.status(401).json({ message: 'No JWT Token' });
   }
-
   try {
-    const payload = verify(jwtToken, secret_token) as { user: { id: string } };
-    const userdta = await User.findById(payload.user.id);
-
-    if (userdta) {
-      req.profileid = userdta.id;
-      next();
-    } else {
-      return res.status(401).json({ message: 'Invalid JWT Token' });
+    const jwtpayload =  verify(jwtToken,secret_token) as JwtPayload
+    const user = await User.collection.findOne({_id: new Types.ObjectId(jwtpayload._id)})
+    if(!user){
+      return res.send("User not found").status(401)
     }
+     console.log(user._id)
+    req.profileid = user._id
+    next()
   } catch (error) {
-    return res.status(401).json({ message: 'Invalid JWT Token' });
+    console.log("JWT verification errror:",error)
+    return res.status(500).json({message:"Server Error"})
   }
 };
 
