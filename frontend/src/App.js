@@ -10,6 +10,7 @@ import Homepage from './components/home/home';
 import ProfilePage from './components/profilepage/profile';
 import Admin from './components/admin/admin';
 import Adminplan from './components/plans/plan';
+import Subscription from './components/subscription/subscription';
 function App() {
   return (
   <div className='App'>
@@ -25,6 +26,7 @@ function App() {
       <Route path = '/forgetpassword' element={<ForgetPassword/>}/>
       <Route path = '/resetpassword' element = {<ResetPassword/>}/>
       <Route path = '/confirmpassword' element = {<ConfirmPassword/>}/>
+      <Route path = '/subscription/:id' element = {<Subscription/>}/>
     </Routes>
     </BrowserRouter>
   </div>

@@ -12,6 +12,14 @@ function Homepage(){
             console.log(data)
         })
     },[])
+    function subscriptiontoplan(planId) {
+        fetch(`api/usermanagement/plans/${planId}`, {
+            method: "get"
+        }).then(response => { if(response.ok){
+            navigator(`/subscription/${planId}`)
+        } return response.json() }).then(data => console.log(data)
+        )
+    }
     return(
         <div>
             <h1>Plans</h1>
@@ -24,6 +32,7 @@ function Homepage(){
                             <p>Description:{plan.description}</p>
                             <p>Started at {plan.start}</p>
                             <p>Will End at {plan.end}</p>
+                            <button className="btn btn-primary" onClick={() => subscriptiontoplan(plan._id)}>Subscribe</button>
                         </div>
                     </li>
                 ))}
