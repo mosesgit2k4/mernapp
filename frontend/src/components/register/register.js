@@ -1,4 +1,4 @@
-import React, {useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import './register.css'
 function Register() {
@@ -11,13 +11,13 @@ function Register() {
     const [password, setpassword] = useState('')
     const [image, setimage] = useState('')
     const [error, seterror] = useState('')
-    const [isadmin,setadmin] = useState(false)
-    const [country,setcountry] = useState('')
-    const [state,setstate] = useState('')
-    const [city,setcity ] = useState('')
-    const [addresses,setaddresses] = useState('')
-    const [zipcode,setzipcode] = useState('')
-    const [type,settype] = useState('')
+    const [isadmin, setadmin] = useState(false)
+    const [country, setcountry] = useState('')
+    const [state, setstate] = useState('')
+    const [city, setcity] = useState('')
+    const [addresses, setaddresses] = useState('')
+    const [zipcode, setzipcode] = useState('')
+    const [type, settype] = useState('')
     const [filebase64, setfilebase64] = useState('')
 
     function handleregister(e) {
@@ -31,15 +31,15 @@ function Register() {
             username: username,
             password: password,
             image: filebase64,
-            isadmin:isadmin,
-            country:country,
-            city:city,
-            addresses:addresses,
-            state:state,
-            zipcode:zipcode,
-            type:type
+            isadmin: isadmin,
+            country: country,
+            city: city,
+            addresses: addresses,
+            state: state,
+            zipcode: zipcode,
+            type: type
         }
-        function encodeFileBase64(file){
+        function encodeFileBase64(file) {
             var reader = new FileReader();
             if (file) {
                 reader.readAsDataURL(file);
@@ -91,7 +91,7 @@ function Register() {
                 if (data.message === "Fill the Date of birth") { seterror(data.message) }
                 console.log(data)
             }
-            ).catch(error=>{
+            ).catch(error => {
                 console.log(error)
             })
         } catch (error) {
@@ -101,16 +101,16 @@ function Register() {
 
     }
     return (
-        <div className="box-container">
+        <div className="box-container-for-register">
             <h1>REGISTER HERE</h1>
             <div className="box-register">
                 <form onSubmit={handleregister}>
                     <div className="name-design">
                         <label htmlFor="image" className="name" >Profile Picture</label>
-                        <input className="image-design" id="image" type="file" onChange={e=>setimage(e.target.files[0])}/>
+                        <input className="image-design" id="image" type="file" onChange={e => setimage(e.target.files[0])} />
                     </div>
                     <div>
-                        <img src = {filebase64} width={100} height={100} alt="Avatar"/>
+                        <img src={filebase64} width={100} height={100} alt="Avatar" />
                     </div>
                     <div className="name-design">
                         <label htmlFor="firstname" className="name">First Name</label>
@@ -134,7 +134,7 @@ function Register() {
                     </div>
                     <div className="name-design">
                         <label htmlFor="password" className="name">Password</label>
-                        <input type='password' id="password" value={password} onChange={e => setpassword(e.target.value)} />
+                        <input type='password' id="password" value={password} onChange={e => setpassword(e.target.value)} placeholder="password" />
                     </div>
                     <div className="name-design">
                         <label htmlFor="state" className="name">State</label>

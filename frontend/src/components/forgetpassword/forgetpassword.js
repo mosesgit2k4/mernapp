@@ -4,7 +4,7 @@ import './forgetpassword.css'
 function ForgetPassword() {
     const navigator = useNavigate()
     const [email, setEmail] = useState('')
-    const [data,setData] = useState('')
+    const [data, setData] = useState('')
     function handleSubmit(e) {
         let emaildetails = {
             email: email
@@ -18,17 +18,17 @@ function ForgetPassword() {
             if (!response.ok) {
                 setData("*Give a correct Email")
             }
-            else{
+            else {
                 navigator('/resetpassword')
             }
             return response.json()
         }).then(data => console.log(data))
     }
     return (
-        <div className="box-container">   
+        <div className="box-container">
             <div className="container">
                 <div className="row">
-                   <div className= "col-12">
+                    <div className="col-12">
                         <div className="box-forgetpassword">
                             <form onSubmit={handleSubmit}>
                                 <label htmlFor="email" className="emaillabeldesign">Email ID</label>
@@ -36,10 +36,10 @@ function ForgetPassword() {
                                 <div>
                                     <button type="submit" className="otp-button">Send OTP</button>
                                 </div>
-                                <p className="error-Message" onChange = {e=>setData(e.target.value)}>{data}</p>
+                                <p className="error-Message" onChange={e => setData(e.target.value)}>{data}</p>
                             </form>
                         </div>
-                    </div> 
+                    </div>
                 </div>
             </div>
         </div>

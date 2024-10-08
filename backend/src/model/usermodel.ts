@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import Address from "./addressModel";
 
 export interface IUser extends Document {
-    _id:ObjectId
+    _id: ObjectId
     firstName: string;
     lastName: string;
     email: string;
@@ -51,8 +51,8 @@ const userSchema = new mongoose.Schema<IUser>({
         ref: "Address",
     },
     isadmin: {
-        type:String,
-        required :true
+        type: String,
+        required: true
     }
 }, {
     timestamps: true,

@@ -5,6 +5,6 @@ const app = express()
 
 app.use(bodyParser.json())
 app.use(express.json())
-app.use('/api',router)
+app.use('/api', router)
 
 export default app;

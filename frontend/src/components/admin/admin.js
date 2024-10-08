@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-function Admin(){
-    return(
+function Admin() {
+    return (
         <div>
-           <Link to = "/adminplan">Plans</Link>
+            <Link to="/adminplan">Plans</Link>
         </div>
     )
 }

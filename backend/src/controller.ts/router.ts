@@ -1,22 +1,20 @@
 import { Router } from "express";
 import { UserControllers } from "./usermanagement/controller";
-import { upload } from "../imageupload";  // Ensure correct middleware
+import { upload } from "../imageupload";
 import usersSessionHandler from "../authHandler/middlewareauthHandler";
 
 export const userManagementRouter: Router = Router();
 
-// User Registration, Login, Password Management
-userManagementRouter.post('/register', upload, UserControllers.createUser);  // Register user with file upload (if required)
-userManagementRouter.post('/login', UserControllers.loginUser);  // User login
-userManagementRouter.post('/forgetpassword', UserControllers.forgetUser);  // Forgot password route
-userManagementRouter.post('/resetpassword', UserControllers.resetpassword);  // Reset password with OTP
-userManagementRouter.put('/confirmpassword', UserControllers.confirmpassword);  // Confirm new password
+userManagementRouter.post('/register', upload, UserControllers.createUser);
+userManagementRouter.post('/login', UserControllers.loginUser);
+userManagementRouter.post('/forgetpassword', UserControllers.forgetUser);
+userManagementRouter.post('/resetpassword', UserControllers.resetpassword);
+userManagementRouter.put('/confirmpassword', UserControllers.confirmpassword);
 
-// User Profile Management (protected routes)
-userManagementRouter.get('/myprofile', usersSessionHandler, UserControllers.getuserprofile);  // Get user profile
-userManagementRouter.put('/myprofile', usersSessionHandler, UserControllers.Updateuser);  // Update user profile
+userManagementRouter.get('/myprofile', usersSessionHandler, UserControllers.getuserprofile);
+userManagementRouter.put('/myprofile', usersSessionHandler, UserControllers.Updateuser);
 
-// Plan Management
-userManagementRouter.post("/plans", UserControllers.createplan);  // Create a new plan
-userManagementRouter.get('/plans', UserControllers.getplan);  // Get all plans
-userManagementRouter.get('/plans/:planId', UserControllers.getplanid);  // Get plan by ID
+
+userManagementRouter.post("/plans", UserControllers.createplan);
+userManagementRouter.get('/plans', UserControllers.getplan);
+userManagementRouter.get('/plans/:planId', UserControllers.getplanid);  
