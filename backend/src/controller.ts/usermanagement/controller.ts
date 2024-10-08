@@ -230,7 +230,6 @@ class UserController{
             const profileid = req.profileid;
             if(profileid){
                 const profile = profileid.toString()
-                console.log(profile)
                 const user = await UserServices.getusersByid(profile);
                 if (user) {
                     res.status(200).json(user);
@@ -247,7 +246,8 @@ class UserController{
     updateuser = async (req: AuthenticatedRequest, res: Response) => {
         try {
             if(req.profileid !== undefined){
-                const id = req.profileid;
+                const idinobjectId = req.profileid;
+                const id = idinobjectId.toString()
             const { newfirstName, newlastName, newemail, newusername, newmobilephone, newimage } = req.body
             const updateduser = await UserServices.updateuser(id, newfirstName, newlastName, newemail, newusername, newmobilephone, newimage)
             if (updateduser) {

@@ -1,3 +1,4 @@
+import { string } from "joi";
 import mongoose from "mongoose";
 
 const PlanSchema = new mongoose.Schema({
@@ -14,7 +15,7 @@ const PlanSchema = new mongoose.Schema({
         required:true
     },
     image:{
-        type:BigInt,
+        type:String,
         required:true
     },
     description:{

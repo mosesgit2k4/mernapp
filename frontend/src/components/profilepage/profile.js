@@ -26,13 +26,6 @@ function getapi (jwtToken){
             settempuser(data)
         })
 }
-
-    useEffect(() => {
-        console.log(user);
-        console.log(tempuser);
-        console.log(changed)
-    },[])
-
     useEffect(() => {
         let numberofgetfromuseeffect = true
         const cookies = new Cookies()
@@ -78,11 +71,11 @@ function getapi (jwtToken){
             newimage: filebase641,
         }
         const cookies = new Cookies()
-        const jwtToken = cookies.get("jwt_authorization")
+        const jwtToken = cookies.get("token_authenication")
 
         await fetch('/api/usermanagement/myprofile', {
             method: "put",
-            headers: { "Authorization": `Bearer ${jwtToken}`, "Content-Type":"application/json"},
+            headers: { "Authorization": `Bearer ${jwtToken}`},
             body: JSON.stringify(userdetails)
         }).then(response => response.json())
             .then(data => {
@@ -90,6 +83,9 @@ function getapi (jwtToken){
                 setclick(false)
                 setcount(true)
                 setchanged(false)
+                console.log(tempuser)
+                getapi(jwtToken)
+
             })
         
         //console.log(jwtToken)
@@ -170,10 +166,10 @@ function getapi (jwtToken){
                         <div className="d-flex flex row justify-content-start">
                             <div className="mt-5">
                                 <label htmlFor="phonenumber">Phone number:</label>
-                                <input id="phonenumber" value={tempuser.mobilephone} onChange={e => {
+                                <input id="phonenumber" value={tempuser.phonenumber} onChange={e => {
                                     setchanged(true)
                                     setcount(false)
-                                    settempuser({ ...tempuser, mobilephone: e.target.value })
+                                    settempuser({ ...tempuser, phonenumber: e.target.value })
                                 }} />
                             </div>
                         </div>

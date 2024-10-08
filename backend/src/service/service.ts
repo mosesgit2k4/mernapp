@@ -111,7 +111,7 @@ class UserService {
     
 
     // Update user details
-    async updateuser(id: object, newfirstName: string, newlastName: string, newemail: string, newusername: string, newmobilephone: number, newimage: string) {
+    async updateuser(id: string, newfirstName: string, newlastName: string, newemail: string, newusername: string, newmobilephone: number, newimage: string) {
         try {
             const update = await User.findByIdAndUpdate(
                 id,

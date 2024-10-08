@@ -26,7 +26,7 @@ const usersSessionHandler = async (req: AuthenticatedRequest, res: any, next: Ne
     if(!user){
       return res.send("User not found").status(401)
     }
-     console.log(user._id)
+     //console.log(user._id)
     req.profileid = user._id
     next()
   } catch (error) {
