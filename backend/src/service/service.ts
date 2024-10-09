@@ -137,8 +137,11 @@ class UserService {
         }
     }
 
-    // Create a new plan
-    async createplans(plansData: CreatePlan) {
+   
+}
+class PlanService{
+     // Create a new plan
+     async createplans(plansData: CreatePlan) {
         try {
             const plan = await Plan.create(plansData);
             return plan;
@@ -175,3 +178,4 @@ class UserService {
 }
 
 export const UserServices = new UserService();
+export const PlanServices = new PlanService()

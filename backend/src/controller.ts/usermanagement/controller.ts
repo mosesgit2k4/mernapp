@@ -1,8 +1,8 @@
 import { Response, Request } from "express";
-import { UserServices } from "../../service/service";
+import { UserServices , PlanServices} from "../../service/service";
 import { compare } from "bcrypt";
 import { sign } from 'jsonwebtoken'
-import Joi from "joi";
+import { PostBody } from "../../validation";
 import nodemailer from 'nodemailer'
 import dotenv, { secret_token } from "../../config/dotenv";
 import { AuthenticatedRequest } from "../../authHandler/middlewareauthHandler";
@@ -24,58 +24,7 @@ let transporter = nodemailer.createTransport({
         pass: dotenv.password
     }
 });
-const PostBody = Joi.object({
-    firstName: Joi.string().required().min(3).max(10).messages({
-        'string.base': `FirstName ${responsemessage.mustbestring}`,
-        'string.empty': `FirstName ${responsemessage.mustnotbeempty}`,
-        'string.min': responsemessage.mustbeatleast,
-        'any.required': `FirstName ${responsemessage.isrequired}`
 
-    }),
-    lastName: Joi.string().min(3).max(10).required().messages({
-        'string.base': `LastName ${responsemessage.mustbestring}`,
-        'string.empty': `LastName ${responsemessage.mustnotbeempty}`,
-        'string.min': responsemessage.mustbeatleast,
-        'any.required': `LastName ${responsemessage.isrequired}`
-
-    }),
-    email: Joi.string().email().required().lowercase().messages({
-        'string.base': `Email ${responsemessage.mustbestring}`,
-        'string.empty': `Email ${responsemessage.mustnotbeempty}`,
-        'string.email': responsemessage.emailbelike,
-        'any.required': `Email ${responsemessage.isrequired}`
-
-    }),
-    username: Joi.string().required().messages({
-        'string.base': `Username ${responsemessage.mustbestring}`,
-        'string.empty': `Username ${responsemessage.mustnotbeempty}`,
-        'any.required': `Username ${responsemessage.isrequired}`
-    }),
-    password: Joi.string().required().regex(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).*/).min(8).messages({
-        'string.base': `Password ${responsemessage.mustbestring}`,
-        'string.empty': `Password ${responsemessage.mustnotbeempty}`,
-        'any.required': `Password ${responsemessage.isrequired}`,
-        'string.pattern.base': responsemessage.passwordpattern
-
-    }),
-    phonenumber: Joi.number().required().max(10 ** 10 - 1).min(10 ** 9).required().messages({
-        'number.base': `Mobile Number ${responsemessage.mustbenumber}`,
-        'number.min': responsemessage.phonenumber,
-        'number.max': responsemessage.phonenumber,
-        'any.required': `Mobile Number ${responsemessage.isrequired}`
-
-    }),
-    image: Joi.string().required().messages({
-        'any.required': `${responsemessage.imagefailure}`
-    }),
-    isadmin: Joi.string().required(),
-    country: Joi.string().required(),
-    state: Joi.string().required(),
-    city: Joi.string().required(),
-    addresses: Joi.string().required(),
-    zipcode: Joi.number().required(),
-    type: Joi.string().required()
-})
 
 class UserController {
     //Register
@@ -256,6 +205,8 @@ class UserController {
             console.log(error)
         }
     }
+}
+class PlanController{
     //create a new plan from admin
     createplan = async (req: Request, res: Response) => {
         try {
@@ -264,7 +215,7 @@ class UserController {
                 res.status(401).json({ message: responsemessage.imagefailure })
                 return
             }
-            const plan = await UserServices.createplans({ name, description, image, start, end })
+            const plan = await PlanServices.createplans({ name, description, image, start, end })
             res.status(200).send(plan)
         } catch (error) {
             console.log(error)
@@ -274,7 +225,7 @@ class UserController {
     //getplan from user side
     getplan = async (req: Request, res: Response) => {
         try {
-            const plans = await UserServices.getplans();
+            const plans = await PlanServices.getplans();
             res.send(plans)
         } catch (error) {
             console.log(error)
@@ -284,7 +235,7 @@ class UserController {
     getplanid = async (req: Request, res: Response) => {
         try {
             const planid = parseInt(req.params.planId, 10)
-            const plan = await UserServices.getplanbyid(planid)
+            const plan = await PlanServices.getplanbyid(planid)
             if (plan) {
                 res.json(plan)
             }
@@ -295,3 +246,4 @@ class UserController {
 }
 
 export const UserControllers = new UserController()
+export const PlanControllers = new PlanController()
