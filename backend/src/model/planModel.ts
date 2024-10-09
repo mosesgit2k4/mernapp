@@ -1,3 +1,4 @@
+import { Blob } from "buffer";
 import mongoose from "mongoose";
 
 const PlanSchema = new mongoose.Schema({
@@ -13,10 +14,10 @@ const PlanSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
-    image: {
-        type: String,
-        required: true
-    },
+    image:{
+        data: Buffer,
+        contentType: String
+      },
     description: {
         type: String,
         required: true

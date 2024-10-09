@@ -1,4 +1,4 @@
-import User, { IUser } from '../model/usermodel';
+import User from '../model/usermodel';
 import bcrypt from 'bcrypt';
 import Address from "../model/addressModel";
 import Plan from "../model/planModel";
@@ -39,7 +39,7 @@ class UserService {
             return user;
         } catch (err) {
             console.log(err);
-            return { message: responsemessage.usercreateerror};
+            return { message: responsemessage.usercreateerror };
         }
     }
 
@@ -137,11 +137,11 @@ class UserService {
         }
     }
 
-   
+
 }
-class PlanService{
-     // Create a new plan
-     async createplans(plansData: CreatePlan) {
+class PlanService {
+    // Create a new plan
+    async createplans(plansData: CreatePlan) {
         try {
             const plan = await Plan.create(plansData);
             return plan;
@@ -172,7 +172,7 @@ class PlanService{
             }
             return plan
         } catch (error) {
-            console.log("Error:",error)
+            console.log("Error:", error)
         }
     }
 }

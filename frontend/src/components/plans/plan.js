@@ -1,60 +1,66 @@
 import React, { useState } from "react";
 
 function Adminplan() {
-    const [name, setname] = useState('')
-    const [image, setimage] = useState('')
-    const [description, setdescription] = useState('')
-    const [start, setstart] = useState('')
-    const [end, setend] = useState('')
-    const [filebase64, setfilebase64] = useState('')
-    function handleaddingofplan(e) {
-        const formdata = new FormData();
-        formdata.append('image', image);
-        let plandetails = {
-            name: name,
-            image: filebase64,
-            description: description,
-            start: start,
-            end: end
+    const [name, setname] = useState('');
+    const [image, setimage] = useState('');
+    const [description, setdescription] = useState('');
+    const [start, setstart] = useState('');
+    const [end, setend] = useState('');
+    const [error, seterror] = useState('');
+
+    function encodeFileBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
+    }
+
+    async function handleaddingofplan(e) {
+        e.preventDefault();
+
+        if (!image) {
+            seterror("Give an image");
+            return;
         }
-        function encodeFileBase64(file) {
-            var reader = new FileReader();
-            if (file) {
-                reader.readAsDataURL(file);
-                reader.onload = () => {
-                    var Base64 = reader.result;
-                    console.log(Base64)
-                    setfilebase64(Base64)
-                };
-                reader.onerror = function (error) {
-                    console.log('error: ', error);
-                };
-            }
-        }
-        e.preventDefault()
+
         try {
-            encodeFileBase64(image)
+            const base64Image = await encodeFileBase64(image);
+            let plandetails = {
+                name: name,
+                image: base64Image,
+                description: description,
+                start: start,
+                end: end
+            };
+
             fetch('api/usermanagement/plans', {
-                method: "post",
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(plandetails)
-            }).then(response => {
-                return response.json()
-            }).then(data => {
-                console.log(data)
             })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === "Give an image") {
+                        seterror("Give a proper image");
+                    } else {
+                        seterror("Plan Added Successfully");
+                    }
+                    console.log(data);
+                });
         } catch (error) {
-
+            console.error('Error encoding file:', error);
+            seterror("Failed to add plan");
         }
-
-
     }
+
     return (
         <div>
             <form onSubmit={handleaddingofplan}>
                 <div>
                     <label htmlFor="name">Plan Name:</label>
-                    <input value={name} id="name" type="text" placeholder="Enter a name for the plan../" onChange={e => setname(e.target.value)} />
+                    <input value={name} id="name" type="text" placeholder="Enter a name for the plan.." onChange={e => setname(e.target.value)} />
                 </div>
                 <div>
                     <label htmlFor="image">Image</label>
@@ -76,10 +82,9 @@ function Adminplan() {
                     <button type="submit">Add</button>
                 </div>
             </form>
-            <p></p>
+            <p>{error}</p>
         </div>
-    )
+    );
 }
 
-
-export default Adminplan
+export default Adminplan;
