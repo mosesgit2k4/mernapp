@@ -6,7 +6,6 @@ import Joi from "joi";
 import nodemailer from 'nodemailer'
 import dotenv, { secret_token } from "../../config/dotenv";
 import { AuthenticatedRequest } from "../../authHandler/middlewareauthHandler";
-import { ServerResponse } from "http";
 import responsemessage from "../../responsemessage";
 
 interface LoginRequest extends Request {
@@ -27,47 +26,47 @@ let transporter = nodemailer.createTransport({
 });
 const PostBody = Joi.object({
     firstName: Joi.string().required().min(3).max(10).messages({
-        'string.base': "FirstName must be string",
-        'string.empty': "FirstName must not be empty",
-        'string.min': 'There must be atleast 3 character',
-        'any.required': "FirstName is required"
+        'string.base': `FirstName ${responsemessage.mustbestring}`,
+        'string.empty': `FirstName ${responsemessage.mustnotbeempty}`,
+        'string.min': responsemessage.mustbeatleast,
+        'any.required': `FirstName ${responsemessage.isrequired}`
 
     }),
     lastName: Joi.string().min(3).max(10).required().messages({
-        'string.base': "LastName must be string",
-        'string.empty': "LastName must not be empty",
-        'string.min': 'There must be atleast 3 character',
-        'any.required': "LastName is required"
+        'string.base': `LastName ${responsemessage.mustbestring}`,
+        'string.empty': `LastName ${responsemessage.mustnotbeempty}`,
+        'string.min': responsemessage.mustbeatleast,
+        'any.required': `LastName ${responsemessage.isrequired}`
 
     }),
     email: Joi.string().email().required().lowercase().messages({
-        'string.base': "Email must be string",
-        'string.empty': "Email must not be empty",
-        'string.email': "Email must be like a email Id example:helloworld@gmail.com",
-        'any.required': "Email is required"
+        'string.base': `Email ${responsemessage.mustbestring}`,
+        'string.empty': `Email ${responsemessage.mustnotbeempty}`,
+        'string.email': responsemessage.emailbelike,
+        'any.required': `Email ${responsemessage.isrequired}`
 
     }),
     username: Joi.string().required().messages({
-        'string.base': "Username must be string",
-        'string.empty': "Username must not be empty",
-        'any.required': "Username is required"
+        'string.base': `Username ${responsemessage.mustbestring}`,
+        'string.empty': `Username ${responsemessage.mustnotbeempty}`,
+        'any.required': `Username ${responsemessage.isrequired}`
     }),
     password: Joi.string().required().regex(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).*/).min(8).messages({
-        'string.base': "Password must be string",
-        'string.empty': "Password must not be empty",
-        'any.required': "Password is required",
-        'string.pattern.base': 'Minimum 8 character is needed and atleast 1 uppercase , 1 lowercase and 1 digit is required'
+        'string.base': `Password ${responsemessage.mustbestring}`,
+        'string.empty': `Password ${responsemessage.mustnotbeempty}`,
+        'any.required': `Password ${responsemessage.isrequired}`,
+        'string.pattern.base': responsemessage.passwordpattern
 
     }),
     phonenumber: Joi.number().required().max(10 ** 10 - 1).min(10 ** 9).required().messages({
-        'number.base': "Mobile Number must be number",
-        'number.min': "Number must be 10 digit",
-        'number.max': "Number must be 10 digit",
-        'any.required': "Mobile Number is required"
+        'number.base': `Mobile Number ${responsemessage.mustbenumber}`,
+        'number.min': responsemessage.phonenumber,
+        'number.max': responsemessage.phonenumber,
+        'any.required': `Mobile Number ${responsemessage.isrequired}`
 
     }),
     image: Joi.string().required().messages({
-        'any.required': "Give a proper image"
+        'any.required': `${responsemessage.imagefailure}`
     }),
     isadmin: Joi.string().required(),
     country: Joi.string().required(),
@@ -250,7 +249,7 @@ class UserController {
                     res.status(404).json({ message: responsemessage.usernotfound});
                 }
             } else {
-                res.status(400).json({ message: "Profile ID is missing" });
+                res.status(400).json({ message: responsemessage.profileidmissing });
 
             }
         } catch (error) {

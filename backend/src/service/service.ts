@@ -2,7 +2,6 @@ import User, { IUser } from '../model/usermodel';
 import bcrypt from 'bcrypt';
 import Address from "../model/addressModel";
 import Plan from "../model/planModel";
-import { ObjectId } from 'mongoose';
 import responsemessage from '../responsemessage';
 
 interface CreateUsers {
