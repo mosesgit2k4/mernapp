@@ -1,6 +1,5 @@
 import mongoose, { Schema, Document, Model, ObjectId } from "mongoose";
 import bcrypt from "bcrypt";
-import Address from "./addressModel";
 
 export interface IUser extends Document {
     _id: ObjectId
