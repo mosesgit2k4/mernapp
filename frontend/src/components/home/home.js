@@ -21,16 +21,16 @@ function Homepage() {
             <h1>Plans</h1>
             <div className="d-flex flex row justify-content-start">
                 {plans.map(plan => (
-                    <li key={plan.id}>
+                    <li key={plan.id} className="list-style">
                         <div class="card">
                             <div class="content">
-                                <div class="title">{plan.name}</div>
-                                <div class="price">
+                                <div className="title">{plan.name}</div>
+                                <div className="price">
                                     <img src ={plan.image} width={100} height={100} alt=""/>
                                 </div>
-                                <div class="description">{plan.description}</div>
+                                <div className="description">{plan.description}</div>
                             </div>
-                                <button  onClick={() => subscriptiontoplan(plan)}>Subcribe</button>
+                            <button className="button type1"onClick={() => subscriptiontoplan(plan)}></button>
                             </div>
                     </li>
                 ))}

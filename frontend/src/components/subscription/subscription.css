@@ -1,0 +1,5 @@
+.transact-container{
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
