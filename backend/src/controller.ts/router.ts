@@ -17,4 +17,4 @@ userManagementRouter.put('/myprofile', usersSessionHandler, UserControllers.Upda
 
 userManagementRouter.post("/plans",upload, PlanControllers.createplan);
 userManagementRouter.get('/plans', PlanControllers.getplan);
-userManagementRouter.get('/plans/:planId', PlanControllers.getplanid);  
+userManagementRouter.post('/planbyid', PlanControllers.getplanid);  

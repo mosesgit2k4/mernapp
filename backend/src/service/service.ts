@@ -164,15 +164,29 @@ class PlanService {
         }
     }
     //Get plan by id
-    async getplanbyid(id: number) {
+    async getplanbyid(id: string) {
         try {
             const plan = Plan.findById(id).lean()
             if (!plan) {
-                return
+                return responsemessage.plannotfound
             }
             return plan
         } catch (error) {
             console.log("Error:", error)
+            return `Error occured`
+        }
+    }
+    //Get plan by name
+    async getplanbyname(name:string){
+        try {
+            const plan = Plan.findOne({name})
+            if(!plan){
+                return responsemessage.plannotfound
+            }
+            return plan
+        } catch (error) {
+            console.log("Error",error)
+            return 
         }
     }
 }

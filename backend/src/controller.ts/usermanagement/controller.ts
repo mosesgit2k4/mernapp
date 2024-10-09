@@ -232,15 +232,17 @@ class PlanController {
         }
     }
     //get plan by id 
-    getplanid = async (req: Request, res: Response) => {
+    getplanid = async (req: any, res: any) => {
         try {
-            const planid = parseInt(req.params.planId, 10)
-            const plan = await PlanServices.getplanbyid(planid)
-            if (plan) {
-                res.json(plan)
+            const {name} = req.body
+            const plan =  await PlanServices.getplanbyname(name)
+            if(!plan){
+                 return res.status(401).json({message:responsemessage.plannotfound})
             }
+           return res.status(200).send(plan)
         } catch (error) {
             console.log(error)
+             res.status(500).json({message:responsemessage.servererror})
         }
     }
 }

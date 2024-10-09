@@ -19,19 +19,22 @@ const usersSessionHandler = async (req: AuthenticatedRequest, res: any, next: Ne
   }
 
   if (!jwtToken) {
-    return res.status(401).json({ message: responsemessage.nojwttoken });
+     res.status(401).json({ message: responsemessage.nojwttoken });
+     return
   }
   try {
     const jwtpayload = verify(jwtToken, secret_token) as JwtPayload
     const user = await User.collection.findOne({ _id: new Types.ObjectId(jwtpayload._id) })
     if (!user) {
-      return res.send(responsemessage.usernotfound).status(401)
+       res.send(responsemessage.usernotfound).status(401)
+       return
     }
     req.profileid = user._id
     next()
   } catch (error) {
     console.log("JWT verification errror:", error)
-    return res.status(500).json({ message: responsemessage.servererror })
+     res.status(500).json({ message: responsemessage.servererror })
+     return
   }
 };
 
