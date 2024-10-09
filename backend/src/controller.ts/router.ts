@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { UserControllers,PlanControllers } from "./usermanagement/controller";
+import { UserControllers, PlanControllers } from "./usermanagement/controller";
 import { upload } from "../imageupload";
 import usersSessionHandler from "../authHandler/middlewareauthHandler";
 
@@ -15,6 +15,6 @@ userManagementRouter.get('/myprofile', usersSessionHandler, UserControllers.getu
 userManagementRouter.put('/myprofile', usersSessionHandler, UserControllers.Updateuser);
 
 
-userManagementRouter.post("/plans", PlanControllers.createplan);
+userManagementRouter.post("/plans",upload, PlanControllers.createplan);
 userManagementRouter.get('/plans', PlanControllers.getplan);
 userManagementRouter.get('/plans/:planId', PlanControllers.getplanid);  

@@ -26,7 +26,7 @@ function App() {
           <Route path='/forgetpassword' element={<ForgetPassword />} />
           <Route path='/resetpassword' element={<ResetPassword />} />
           <Route path='/confirmpassword' element={<ConfirmPassword />} />
-          <Route path='/subscription/:id' element={<Subscription />} />
+          <Route path='/subscription' element={<Subscription />} />
         </Routes>
       </BrowserRouter>
     </div>

@@ -1,7 +1,9 @@
 import mongoose, { Schema, Document, Model, ObjectId } from "mongoose";
 import bcrypt from "bcrypt";
+import { Blob } from "buffer";
+import { string } from "joi";
 
-export interface IUser extends Document {
+interface IUser extends Document {
     _id: ObjectId
     firstName: string;
     lastName: string;

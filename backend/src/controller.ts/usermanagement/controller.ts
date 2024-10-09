@@ -1,5 +1,5 @@
 import { Response, Request } from "express";
-import { UserServices , PlanServices} from "../../service/service";
+import { UserServices, PlanServices } from "../../service/service";
 import { compare } from "bcrypt";
 import { sign } from 'jsonwebtoken'
 import { PostBody } from "../../validation";
@@ -100,7 +100,7 @@ class UserController {
             }
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ message:responsemessage.otpnotgenerating });
+            return res.status(500).json({ message: responsemessage.otpnotgenerating });
         }
     }
     //confirmpassword
@@ -115,7 +115,7 @@ class UserController {
             }
 
             if (newpassword.length < 8) {
-                return res.status(400).json({ message:responsemessage.passwordlength });
+                return res.status(400).json({ message: responsemessage.passwordlength });
             }
 
             const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/;
@@ -130,11 +130,11 @@ class UserController {
 
             const isSamePassword = await compare(newpassword, emailverify.password);
             if (isSamePassword) {
-                return res.status(400).json({ message: responsemessage.samepassworderrror});
+                return res.status(400).json({ message: responsemessage.samepassworderrror });
             }
 
             if (newpassword !== confirmpassword) {
-                return res.status(400).json({ message: responsemessage.newandconfirmpassworderror});
+                return res.status(400).json({ message: responsemessage.newandconfirmpassworderror });
             }
 
             const updatedResult = await UserServices.updatepassword(email1, newpassword, confirmpassword);
@@ -149,7 +149,7 @@ class UserController {
 
         } catch (error) {
             console.error("Error updating password:", error);
-            return res.status(500).json({ message:responsemessage.passwordupderror });
+            return res.status(500).json({ message: responsemessage.passwordupderror });
         }
     }
     //resetpassword
@@ -157,7 +157,7 @@ class UserController {
         try {
             const otp = req.body;
             if (otp.otp === otp_store[0]) {
-                res.status(200).json({ message:responsemessage.otpverified })
+                res.status(200).json({ message: responsemessage.otpverified })
             }
             else {
                 res.status(401).json({ message: responsemessage.otpfailure })
@@ -193,9 +193,9 @@ class UserController {
                 const { newfirstName, newlastName, newemail, newusername, newmobilephone, newimage } = req.body
                 const updateduser = await UserServices.updateuser(id, newfirstName, newlastName, newemail, newusername, newmobilephone, newimage)
                 if (updateduser) {
-                    res.status(200).json({ message: responsemessage.userupdated});
+                    res.status(200).json({ message: responsemessage.userupdated });
                 } else {
-                    res.status(404).json({ message: responsemessage.usernotfound});
+                    res.status(404).json({ message: responsemessage.usernotfound });
                 }
             } else {
                 res.status(400).json({ message: responsemessage.profileidmissing });
@@ -206,7 +206,7 @@ class UserController {
         }
     }
 }
-class PlanController{
+class PlanController {
     //create a new plan from admin
     createplan = async (req: Request, res: Response) => {
         try {
@@ -219,7 +219,7 @@ class PlanController{
             res.status(200).send(plan)
         } catch (error) {
             console.log(error)
-            res.status(500).json({message:responsemessage.servererror})
+            res.status(500).json({ message: responsemessage.servererror })
         }
     }
     //getplan from user side
