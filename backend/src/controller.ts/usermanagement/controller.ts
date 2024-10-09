@@ -6,6 +6,8 @@ import Joi from "joi";
 import nodemailer from 'nodemailer'
 import dotenv, { secret_token } from "../../config/dotenv";
 import { AuthenticatedRequest } from "../../authHandler/middlewareauthHandler";
+import { ServerResponse } from "http";
+import responsemessage from "../../responsemessage";
 
 interface LoginRequest extends Request {
     body: {
@@ -89,11 +91,11 @@ class UserController {
                 return
             }
             if (usernameval) {
-                res.status(401).json({ message: "User already exist" })
+                res.status(401).json({ message: responsemessage.userexist })
                 return
             }
             if (emailval) {
-                res.status(401).json({ message: "Email already exist" })
+                res.status(401).json({ message: responsemessage.emailexist })
             }
             const user = await UserServices.createUser({ firstName, lastName, email, username, password, phonenumber, image, isadmin }, { country, state, city, addresses, zipcode, type })
             res.status(200).send(user)
@@ -107,7 +109,7 @@ class UserController {
         try {
             const user = await UserServices.getUserByUsername(username);
             if (!user) {
-                return res.status(400).json({ message: 'Invalid Username' });
+                return res.status(400).json({ message: responsemessage.invalidusername });
             }
             const passwordMatch = await compare(password, user.password as string);
             if (passwordMatch) {
@@ -115,11 +117,11 @@ class UserController {
                 const jwtToken = sign(payload, secret_token, { expiresIn: '1h' });
                 return res.status(200).json({ jwtToken, admin: user.isadmin });
             } else {
-                return res.status(400).json({ message: 'Invalid Password' });
+                return res.status(400).json({ message: responsemessage.invalidpassword });
             }
         } catch (error) {
             console.error('Login error:', error);
-            return res.status(500).json({ message: 'Server Error' });
+            return res.status(500).json({ message: responsemessage.servererror });
         }
     };
 
@@ -146,11 +148,11 @@ class UserController {
                     }
                 });
             } else {
-                return res.status(401).json({ message: "Invalid email" });
+                return res.status(401).json({ message: responsemessage.invalidemail });
             }
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ message: "Server error during OTP generation" });
+            return res.status(500).json({ message:responsemessage.otpnotgenerating });
         }
     }
     //confirmpassword
@@ -161,30 +163,30 @@ class UserController {
 
             let email1 = emailstore[0];
             if (!email1) {
-                return res.status(400).json({ message: "Email is not found in the current session." });
+                return res.status(400).json({ message: responsemessage.emailnotfound });
             }
 
             if (newpassword.length < 8) {
-                return res.status(400).json({ message: "Password must be at least 8 characters long." });
+                return res.status(400).json({ message:responsemessage.passwordlength });
             }
 
             const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/;
             if (!passwordRegex.test(newpassword)) {
-                return res.status(400).json({ message: "Password must contain at least one uppercase letter, one lowercase letter, and one number." });
+                return res.status(400).json({ message: responsemessage.passwordcharacters });
             }
 
             const emailverify = await UserServices.getusersByemail(email1);
             if (!emailverify) {
-                return res.status(404).json({ message: "User with this email does not exist." });
+                return res.status(404).json({ message: responsemessage.invalidemail });
             }
 
             const isSamePassword = await compare(newpassword, emailverify.password);
             if (isSamePassword) {
-                return res.status(400).json({ message: "You have entered your old password. Please use a different password." });
+                return res.status(400).json({ message: responsemessage.samepassworderrror});
             }
 
             if (newpassword !== confirmpassword) {
-                return res.status(400).json({ message: "New password and confirm password do not match." });
+                return res.status(400).json({ message: responsemessage.newandconfirmpassworderror});
             }
 
             const updatedResult = await UserServices.updatepassword(email1, newpassword, confirmpassword);
@@ -192,14 +194,14 @@ class UserController {
             if (updatedResult) {
                 otp_store = [];
                 emailstore = [];
-                return res.status(200).json({ message: "Password updated successfully." });
+                return res.status(200).json({ message: responsemessage.passwordupdated });
             } else {
-                return res.status(500).json({ message: "Failed to update password. Please try again." });
+                return res.status(500).json({ message: responsemessage.passwordupdfailure });
             }
 
         } catch (error) {
             console.error("Error updating password:", error);
-            return res.status(500).json({ message: "An error occurred while updating the password." });
+            return res.status(500).json({ message:responsemessage.passwordupderror });
         }
     }
     //resetpassword
@@ -207,10 +209,10 @@ class UserController {
         try {
             const otp = req.body;
             if (otp.otp === otp_store[0]) {
-                res.status(200).json({ message: "Thank you for the OTP" })
+                res.status(200).json({ message:responsemessage.otpverified })
             }
             else {
-                res.status(401).json({ message: "Give a correct OTP" })
+                res.status(401).json({ message: responsemessage.otpfailure })
             }
         } catch (error) {
             console.log(error)
@@ -226,12 +228,12 @@ class UserController {
                 if (user) {
                     res.status(200).json(user);
                 } else {
-                    res.status(404).json({ message: 'User not found' });
+                    res.status(404).json({ message: responsemessage.usernotfound });
                 }
             }
         } catch (error) {
             console.error('Get user profile error:', error);
-            res.status(500).json({ message: 'Server Error' });
+            res.status(500).json({ message: responsemessage.servererror });
         }
     }
     //update user
@@ -243,9 +245,9 @@ class UserController {
                 const { newfirstName, newlastName, newemail, newusername, newmobilephone, newimage } = req.body
                 const updateduser = await UserServices.updateuser(id, newfirstName, newlastName, newemail, newusername, newmobilephone, newimage)
                 if (updateduser) {
-                    res.status(200).json({ message: "User updated successfully" });
+                    res.status(200).json({ message: responsemessage.userupdated});
                 } else {
-                    res.status(404).json({ message: "User not found" });
+                    res.status(404).json({ message: responsemessage.usernotfound});
                 }
             } else {
                 res.status(400).json({ message: "Profile ID is missing" });
@@ -260,13 +262,14 @@ class UserController {
         try {
             const { name, description, image, start, end } = req.body
             if (image === "") {
-                res.status(401).json({ message: "Give a image" })
+                res.status(401).json({ message: responsemessage.imagefailure })
                 return
             }
             const plan = await UserServices.createplans({ name, description, image, start, end })
             res.status(200).send(plan)
         } catch (error) {
             console.log(error)
+            res.status(500).json({message:responsemessage.servererror})
         }
     }
     //getplan from user side

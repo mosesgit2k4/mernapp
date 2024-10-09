@@ -9,7 +9,7 @@ export interface AuthenticatedRequest extends Request {
 }
 
 
-const usersSessionHandler = async (req: AuthenticatedRequest, res: any, next: NextFunction) => {
+const usersSessionHandler = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
   let jwtToken;
 

@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import Address from "../model/addressModel";
 import Plan from "../model/planModel";
 import { ObjectId } from 'mongoose';
+import responsemessage from '../responsemessage';
 
 interface CreateUsers {
     firstName: string;
@@ -39,7 +40,7 @@ class UserService {
             return user;
         } catch (err) {
             console.log(err);
-            return { message: "There was an error creating the user" };
+            return { message: responsemessage.usercreateerror};
         }
     }
 
@@ -48,7 +49,7 @@ class UserService {
         try {
             const user = await User.findById(id).lean();
             if (!user) {
-                return 'User not found';
+                return responsemessage.usernotfound;
             }
             const { password, ...userWithoutPassword } = user;
             return userWithoutPassword;
@@ -88,7 +89,7 @@ class UserService {
     // Update user password
     async updatepassword(email: string, newpassword: string, confirmpassword: string) {
         if (newpassword !== confirmpassword) {
-            return "Passwords do not match";
+            return responsemessage.passwordnotmatch;
         }
         try {
             const hashedPassword = await bcrypt.hash(newpassword, 10);
@@ -169,7 +170,7 @@ class UserService {
             }
             return plan
         } catch (error) {
-
+            console.log("Error:",error)
         }
     }
 }
