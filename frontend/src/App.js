@@ -11,7 +11,8 @@ import ProfilePage from './components/profilepage/profile';
 import Admin from './components/admin/admin';
 import Adminplan from './components/plans/plan';
 import Subscription from './components/subscription/subscription';
-import Users from './components/userdetails/users';
+import UserDetailsforadmin from './components/userdetails/users';
+import User from './components/user/user';
 function App() {
   return (
     <div className='App'>
@@ -28,7 +29,8 @@ function App() {
           <Route path='/resetpassword' element={<ResetPassword />} />
           <Route path='/confirmpassword' element={<ConfirmPassword />} />
           <Route path='/subscription' element={<Subscription />} />
-          <Route path='/user' element = {<Users/>}/>
+          <Route path='/users' element = {<UserDetailsforadmin/>}/>
+          <Route path='/user' element = {<User/>}/>
         </Routes>
       </BrowserRouter>
     </div>

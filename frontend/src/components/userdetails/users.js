@@ -1,5 +1,5 @@
 import React, { useState,useEffect } from "react";
-function Users(){
+function UserDetailsforadmin(){
     const [users,setuser] = useState([])
     useEffect(() => {
         fetch('api/usermanagement/users', {
@@ -31,4 +31,4 @@ function Users(){
     )
 }
 
-export default Users
+export default UserDetailsforadmin

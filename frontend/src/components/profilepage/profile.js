@@ -109,7 +109,7 @@ function ProfilePage() {
                                         {user.isadmin === "Admin" ? (
                                             <Link to="/admin" state={{ user }} className="nav-link mr-5">Admin</Link>                            
                                         ) : (
-                                            <Link to='/home' className="nav-link mr-5">Home</Link>
+                                            <Link to='/user' state = {{user}} className="nav-link mr-5">Home</Link>
                                         )}
                                     </li>
                                     <li className="nav-item">

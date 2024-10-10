@@ -23,7 +23,7 @@ function Admin() {
                     <Navbar.Brand>Admin</Navbar.Brand>
                     <Nav className="flex-column mt-4">
                         <Nav.Link as={Link} to="/adminplan">Plans</Nav.Link>
-                        <Nav.Link as={Link} to="/user">User</Nav.Link>
+                        <Nav.Link as={Link} to="/users">User</Nav.Link>
                     </Nav>
                     <Dropdown className="mt-auto dropup">
                         <Dropdown.Toggle variant="secondary" id="dropdown-basic">
