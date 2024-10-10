@@ -107,7 +107,7 @@ function ProfilePage() {
                                 <ul className="navbar-nav mr-auto">
                                     <li className="nav-item active">
                                         {user.isadmin === "Admin" ? (
-                                            <Link to='/admin' className="nav-link mr-5">Admin</Link>
+                                            <Link to="/admin" state={{ user }} className="nav-link mr-5">Admin</Link>                            
                                         ) : (
                                             <Link to='/home' className="nav-link mr-5">Home</Link>
                                         )}

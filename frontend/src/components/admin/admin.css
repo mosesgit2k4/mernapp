@@ -1,0 +1,52 @@
+.sidebar {
+    height: 100vh;
+    width: 250px;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: width 0.3s ease;
+}
+
+.sidebar.minimized {
+    width: 80px;
+}
+
+.sidebar-navbar {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.sidebar-navbar .navbar-brand,
+.sidebar-navbar .nav-link,
+.sidebar-navbar .dropdown-toggle {
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.minimized .navbar-brand,
+.sidebar.minimized .nav-link,
+.sidebar.minimized .dropdown-toggle {
+    opacity: 0;
+}
+
+.toggle-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px;
+}
+
+.toggle-button:hover {
+    background-color: #0056b3;
+}
+
+.dropup .dropdown-menu {
+    bottom: 100%;
+    top: auto;
+    margin-bottom: 1rem;
+}
