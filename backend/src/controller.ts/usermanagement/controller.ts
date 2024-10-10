@@ -2,6 +2,7 @@ import { Response, Request } from "express";
 import { UserServices, PlanServices } from "../../service/service";
 import { compare } from "bcrypt";
 import { sign } from 'jsonwebtoken'
+import { PlanBody } from "../../validation";
 import { PostBody } from "../../validation";
 import nodemailer from 'nodemailer'
 import dotenv, { secret_token } from "../../config/dotenv";
@@ -219,12 +220,13 @@ class PlanController {
     //create a new plan from admin
     createplan = async (req: Request, res: Response) => {
         try {
-            const { name, description, image, start, end } = req.body
+            const { value, error } = PostBody.validate(req.body, { abortEarly: false })
+            const {image} = value
             if (image === "") {
                 res.status(401).json({ message: responsemessage.imagefailure })
                 return
             }
-            const plan = await PlanServices.createplans({ name, description, image, start, end })
+            const plan = await PlanServices.createplans(value)
             res.status(200).send(plan)
         } catch (error) {
             console.log(error)

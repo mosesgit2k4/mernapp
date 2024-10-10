@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import './plan.css'; // Add this CSS file for styling
 
 function Adminplan() {
     const [name, setname] = useState('');
@@ -21,7 +22,7 @@ function Adminplan() {
         e.preventDefault();
 
         if (!image) {
-            seterror("Give an image");
+            seterror("Please provide an image.");
             return;
         }
 
@@ -43,46 +44,80 @@ function Adminplan() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.message === "Give an image") {
-                        seterror("Give a proper image");
+                        seterror("Please provide a valid image.");
                     } else {
-                        seterror("Plan Added Successfully");
+                        seterror("Plan added successfully!");
                     }
                     console.log(data);
                 });
         } catch (error) {
             console.error('Error encoding file:', error);
-            seterror("Failed to add plan");
+            seterror("Failed to add plan.");
         }
     }
 
     return (
         <div>
-            <form onSubmit={handleaddingofplan}>
-                <div>
-                    <label htmlFor="name">Plan Name:</label>
-                    <input value={name} id="name" type="text" placeholder="Enter a name for the plan.." onChange={e => setname(e.target.value)} />
-                </div>
-                <div>
-                    <label htmlFor="image">Image</label>
-                    <input type="file" id="image" onChange={e => setimage(e.target.files[0])} />
-                </div>
-                <div>
-                    <label htmlFor="description">Description</label>
-                    <input value={description} id="description" type="text" onChange={e => setdescription(e.target.value)} />
-                </div>
-                <div>
-                    <label htmlFor="startdate">Start Date</label>
-                    <input value={start} type="date" id="startdate" onChange={e => setstart(e.target.value)} />
-                </div>
-                <div>
-                    <label htmlFor="enddate">End Date</label>
-                    <input type="date" id="enddate" value={end} onChange={e => setend(e.target.value)} />
-                </div>
-                <div>
-                    <button type="submit">Add</button>
-                </div>
-            </form>
-            <p>{error}</p>
+            {error && <p className="error-message">{error}</p>}
+            <div className="adminplan-container">
+                <form onSubmit={handleaddingofplan} className="adminplan-form">
+                    <h1>Add a New Plan</h1>
+                    <div className="form-group">
+                        <label htmlFor="name">Plan Name:</label>
+                        <input 
+                            value={name}
+                            id="name"
+                            type="text"
+                            placeholder="Enter a name for the plan.." 
+                            onChange={e => setname(e.target.value)} 
+                            className="form-input"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="image">Plan Image</label>
+                        <input 
+                            type="file"
+                            id="image" 
+                            onChange={e => setimage(e.target.files[0])} 
+                            className="form-input"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="description">Description</label>
+                        <textarea 
+                            value={description} 
+                            id="description" 
+                            rows="5" 
+                            placeholder="Enter a description for the plan.." 
+                            onChange={e => setdescription(e.target.value)}>
+                        </textarea>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="startdate">Start Date</label>
+                        <input 
+                            value={start}
+                            type="date"
+                            id="startdate"
+                            onChange={e => setstart(e.target.value)} 
+                            className="form-input"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="enddate">End Date</label>
+                        <input 
+                            type="date" 
+                            id="enddate"
+                            value={end}
+                            onChange={e => setend(e.target.value)} 
+                            className="form-input"
+                        />
+                    </div>
+                    <div>
+                        <button type="submit" className="submit-btn">Add Plan</button>
+                    </div>
+                </form>
+            </div>
+            
         </div>
     );
 }

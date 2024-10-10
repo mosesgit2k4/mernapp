@@ -14,7 +14,7 @@ function Subscription() {
 
         <div className="transaction-page">
             <div className="plan-details">
-                <h2>Transaction for {plan.name}</h2>
+                <h2>{plan.name}</h2>
                 <img src={plan.image} width={200} height={200} alt={plan.name} />
                 <p>Description: {plan.description}</p>
             </div>
