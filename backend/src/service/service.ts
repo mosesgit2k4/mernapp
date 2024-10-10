@@ -136,8 +136,13 @@ class UserService {
             console.log(error);
         }
     }
-
-
+    async getusers(){
+        const users = await User.find({isadmin:"User"}).lean()
+        if(!users){
+            return 'No Users Till Now'
+        }
+        return users
+    }
 }
 class PlanService {
     // Create a new plan

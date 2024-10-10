@@ -10,7 +10,7 @@ userManagementRouter.post('/login', UserControllers.loginUser);
 userManagementRouter.post('/forgetpassword', UserControllers.forgetUser);
 userManagementRouter.post('/resetpassword', UserControllers.resetpassword);
 userManagementRouter.put('/confirmpassword', UserControllers.confirmpassword);
-
+userManagementRouter.get('/users',UserControllers.getallusers)
 userManagementRouter.get('/myprofile', usersSessionHandler, UserControllers.getuserprofile);
 userManagementRouter.put('/myprofile', usersSessionHandler, UserControllers.Updateuser);
 

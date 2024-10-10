@@ -205,6 +205,15 @@ class UserController {
             console.log(error)
         }
     }
+    getallusers = async(req:Request,res:Response)=>{
+        try {
+            const user = await UserServices.getusers(); 
+            res.send(user)
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message:"Internal Server Error"})
+        }
+    }
 }
 class PlanController {
     //create a new plan from admin
