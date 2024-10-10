@@ -22,8 +22,8 @@ function Homepage() {
             <div className="d-flex flex row justify-content-start">
                 {plans.map(plan => (
                     <li key={plan.id} className="list-style">
-                        <div class="card">
-                            <div class="content">
+                        <div className="card">
+                            <div className="content">
                                 <div className="title">{plan.name}</div>
                                 <div className="price">
                                     <img src ={plan.image} width={100} height={100} alt=""/>
