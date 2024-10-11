@@ -13,6 +13,7 @@ import Adminplan from './components/plans/plan';
 import Subscription from './components/subscription/subscription';
 import UserDetailsforadmin from './components/userdetails/users';
 import User from './components/user/user';
+import Subscribed from './components/subcribed/subscribed';
 function App() {
   return (
     <div className='App'>
@@ -31,6 +32,7 @@ function App() {
           <Route path='/subscription' element={<Subscription />} />
           <Route path='/users' element = {<UserDetailsforadmin/>}/>
           <Route path='/user' element = {<User/>}/>
+          <Route path='/subscribed' element = {<Subscribed/>}/>
         </Routes>
       </BrowserRouter>
     </div>

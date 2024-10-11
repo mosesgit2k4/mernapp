@@ -21,7 +21,7 @@ function UserDetailsforadmin(){
                             <div className="title">{user.lastName}</div>
                             <div className="title">{user.email}</div>
                             <div className="price">
-                                <img src={user.image} width={200} height={300} alt={user.name} />
+                                <img src={user.image} width={150} height={100} alt={user.name} />
                             </div>
                         </div>
                     </div>

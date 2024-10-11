@@ -1,4 +1,4 @@
-import React, {useState } from "react";
+import React, {useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Dropdown } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,11 +9,19 @@ function User() {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem("userDetails"))
     const [isMinimized, setIsMinimized] = useState(false);
-
+    const [subcribed,setsubcribed] = useState(false)
+    const plan = JSON.parse(localStorage.getItem('subscribed'))
     function toggleSidebar() {
         setIsMinimized(!isMinimized);
     }
-
+    useEffect(()=>{
+        if(plan === true){
+            setsubcribed(true)
+        }
+        else{
+            setsubcribed(false)
+        }
+    },[plan])
 
     return (
         <div className="admin-page">
@@ -21,7 +29,9 @@ function User() {
                 <Navbar bg="dark" variant="dark" expand="lg" className="flex-column sidebar-navbar">
                     <Navbar.Brand>User</Navbar.Brand>
                     <Nav className="flex-column mt-4">
-                        <Nav.Link as={Link} to="/plan">Plans</Nav.Link>
+                    {subcribed?<Nav.Link as={Link} to="/plan">Plan</Nav.Link>:null}
+                    {!subcribed?<Nav.Link as={Link} to="/subscribed">Subscription</Nav.Link>:null}
+                        
                     </Nav>
                     <Dropdown className="mt-auto dropup">
                         <Dropdown.Toggle variant="secondary" id="dropdown-basic">

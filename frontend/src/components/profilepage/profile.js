@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 function ProfilePage() {
     const inputRef = useRef(null);
     const navigator = useNavigate();
+    const plan = localStorage.getItem('plan')
     const [user, setuser] = useState('');
     const [tempuser, settempuser] = useState('');
     const [changed, setchanged] = useState(false);
@@ -37,7 +38,7 @@ function ProfilePage() {
         if(user && user.isadmin === "User"){
             localStorage.setItem("userDetails",JSON.stringify(user))
         }
-    }, [user]);
+    }, [user,plan]);
 
     function handlelogout() {
         navigator('/login');

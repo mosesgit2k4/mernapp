@@ -1,4 +1,3 @@
-/* Main container styling */
 .adminplan-container {
     display: flex;
     justify-content: center;
@@ -7,7 +6,6 @@
     background-color: #f4f4f4;
 }
 
-/* Form styling */
 .adminplan-form {
     background-color: #fff;
     padding: 20px;
@@ -66,7 +64,6 @@ label {
     background-color: #0056b3;
 }
 
-/* Error message styling */
 .error-message {
     margin-top: 20px;
     color: red;
@@ -74,8 +71,6 @@ label {
     font-size: 2rem;
 }
 
-
-/* Responsive Design */
 @media (max-width: 768px) {
     .adminplan-form {
         padding: 15px;
@@ -100,7 +95,7 @@ textarea {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    resize: vertical; /* Allows vertical resizing only */
+    resize: vertical; 
     font-family: inherit;
     font-size: 1rem;
     line-height: 1.5;
