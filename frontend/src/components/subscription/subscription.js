@@ -3,12 +3,25 @@ import './subscription.css'
 import { useNavigate } from "react-router-dom";
 function Subscription() {
     const navigator = useNavigate()
+    const user = JSON.parse(localStorage.getItem('userDetails'))
     const plan = JSON.parse(localStorage.getItem("plan"));
     if(!plan){
         return <p>No Plan Details available</p>
     }
     function handlePayment(){
+        const planid = plan._id.toString()
+        const userid = user._id.toString()
+        let transactiondetails = {
+            userid:userid,
+            planid:planid,
+            amount:500
+        }
         console.log('Payment processing...');
+        fetch('api/usermanagement/transaction',{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify(transactiondetails)
+        }).then(response =>{return response.json()}).then(data=>{console.log(data)})
         navigator('/user')
     }
     return (

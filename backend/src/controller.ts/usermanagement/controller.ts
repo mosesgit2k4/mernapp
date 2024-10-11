@@ -1,5 +1,5 @@
 import { Response, Request } from "express";
-import { UserServices, PlanServices } from "../../service/service";
+import { UserServices, PlanServices, TransactionServices } from "../../service/service";
 import { compare } from "bcrypt";
 import { sign } from 'jsonwebtoken'
 import { PlanBody } from "../../validation";
@@ -257,6 +257,20 @@ class PlanController {
         }
     }
 }
-
+class TransactionController{
+//create transaction
+createplan = async (req:Request,res:Response)=>{
+    try {
+        const {userid,planid,amount} =req.body
+        
+        const transaction = await TransactionServices.createtransaction({userid,planid,amount})
+        res.status(200).send(transaction)
+    } catch (error) {
+        console.log("Error:",error)
+        res.status(500).json({message:responsemessage.servererror})
+    }
+}
+}
 export const UserControllers = new UserController()
 export const PlanControllers = new PlanController()
+export const TransactionControllers = new TransactionController()

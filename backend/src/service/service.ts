@@ -3,7 +3,8 @@ import bcrypt from 'bcrypt';
 import Address from "../model/addressModel";
 import Plan from "../model/planModel";
 import responsemessage from '../responsemessage';
-
+import Trans from '../model/transaction';
+import { ObjectId } from 'mongoose';
 interface CreateUsers {
     firstName: string;
     lastName: string;
@@ -28,6 +29,12 @@ interface CreateAddress {
     addresses: string;
     zipcode: number;
     type: string;
+}
+interface CreateTransaction{
+    amount:number,
+    userid:ObjectId,
+    planid:ObjectId
+
 }
 
 class UserService {
@@ -195,6 +202,22 @@ class PlanService {
         }
     }
 }
-
+class TransactionService{
+    //create transaction
+    async createtransaction(transactiondetails:CreateTransaction,){
+        try {
+            const {userid,planid} = transactiondetails
+            const useridverify = User.findById(userid)
+            const planidverify = Plan.findById(planid)
+            if(!useridverify || !planidverify){return responsemessage.transactionfailed}
+            const transaction = await Trans.create(transactiondetails)
+            return transaction
+        } catch (error) {
+            console.log("Error:",error)
+            return {message:responsemessage.transactionnot}
+        }
+    }
+}
 export const UserServices = new UserService();
 export const PlanServices = new PlanService()
+export const TransactionServices = new TransactionService()
