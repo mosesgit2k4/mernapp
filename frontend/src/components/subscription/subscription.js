@@ -1,20 +1,21 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
 import './subscription.css'
+import { useNavigate } from "react-router-dom";
 function Subscription() {
-    const location = useLocation();
-    const plan = location.state?.plan
+    const navigator = useNavigate()
+    const plan = JSON.parse(localStorage.getItem("plan"));
     if(!plan){
         return <p>No Plan Details available</p>
     }
     function handlePayment(){
         console.log('Payment processing...');
+        navigator('/user')
     }
     return (
 
         <div className="transaction-page">
             <div className="plan-details">
-                <h2>{plan.name}</h2>
+                <h2>Transaction for {plan.name}</h2>
                 <img src={plan.image} width={200} height={200} alt={plan.name} />
                 <p>Description: {plan.description}</p>
             </div>

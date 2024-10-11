@@ -31,7 +31,13 @@ function ProfilePage() {
         const cookies = new Cookies();
         const jwtToken = cookies.get("token_authenication");
         getapi(jwtToken);
-    }, []);
+        if (user && user.isadmin === "Admin") {
+            localStorage.setItem("adminDetails", JSON.stringify(user));
+        }
+        if(user && user.isadmin === "User"){
+            localStorage.setItem("userDetails",JSON.stringify(user))
+        }
+    }, [user]);
 
     function handlelogout() {
         navigator('/login');
@@ -107,7 +113,7 @@ function ProfilePage() {
                                 <ul className="navbar-nav mr-auto">
                                     <li className="nav-item active">
                                         {user.isadmin === "Admin" ? (
-                                            <Link to="/admin" state={{ user }} className="nav-link mr-5">Admin</Link>                            
+                                            <Link to ="/admin"className="nav-link mr-5">Admin</Link>                            
                                         ) : (
                                             <Link to='/user' state = {{user}} className="nav-link mr-5">Home</Link>
                                         )}

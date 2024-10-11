@@ -1,5 +1,5 @@
 import React, {useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Dropdown } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
@@ -7,8 +7,7 @@ import './user.css';
 
 function User() {
     const navigate = useNavigate();
-    const Userlocation = useLocation();
-    const user = Userlocation.state?.user;
+    const user = JSON.parse(localStorage.getItem("userDetails"))
     const [isMinimized, setIsMinimized] = useState(false);
 
     function toggleSidebar() {
@@ -22,7 +21,7 @@ function User() {
                 <Navbar bg="dark" variant="dark" expand="lg" className="flex-column sidebar-navbar">
                     <Navbar.Brand>User</Navbar.Brand>
                     <Nav className="flex-column mt-4">
-                        <Nav.Link as={Link} to="/home">Plans</Nav.Link>
+                        <Nav.Link as={Link} to="/plan">Plans</Nav.Link>
                     </Nav>
                     <Dropdown className="mt-auto dropup">
                         <Dropdown.Toggle variant="secondary" id="dropdown-basic">

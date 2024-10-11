@@ -1,5 +1,5 @@
 import React, {useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Dropdown } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
@@ -7,8 +7,7 @@ import './admin.css';
 
 function Admin() {
     const navigate = useNavigate();
-    const adminLocation = useLocation();
-    const admin = adminLocation.state?.user;
+    const admin = JSON.parse(localStorage.getItem("adminDetails"));
     const [isMinimized, setIsMinimized] = useState(false);
 
     function toggleSidebar() {

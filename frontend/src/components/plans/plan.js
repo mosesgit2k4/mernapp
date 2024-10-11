@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import './plan.css'; // Add this CSS file for styling
+import { useNavigate } from "react-router-dom";
 
 function Adminplan() {
+      const navigator = useNavigate()
     const [name, setname] = useState('');
     const [image, setimage] = useState('');
     const [description, setdescription] = useState('');
@@ -46,6 +48,7 @@ function Adminplan() {
                     if (data.message === "Give an image") {
                         seterror("Please provide a valid image.");
                     } else {
+                        navigator('/admin')
                         seterror("Plan added successfully!");
                     }
                     console.log(data);

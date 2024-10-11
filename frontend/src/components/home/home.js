@@ -14,7 +14,8 @@ function Homepage() {
     }, []);
 
     function subscriptionToPlan(plan) {
-        navigate("/subscription", { state: { plan } });
+        localStorage.setItem('plan',JSON.stringify(plan))
+        navigate("/subscription");
     }
 
     return (
