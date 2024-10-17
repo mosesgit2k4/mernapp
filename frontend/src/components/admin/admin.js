@@ -1,19 +1,27 @@
-import React, {useState } from "react";
+import React, {useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Dropdown } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import './admin.css';
+import Cookies from "universal-cookie";
 
 function Admin() {
     const navigate = useNavigate();
-    const admin = JSON.parse(localStorage.getItem("adminDetails"));
+    const [admin,setadmin] = useState('')
     const [isMinimized, setIsMinimized] = useState(false);
+    useEffect(()=>{
+        const cookie = new Cookies()
+        const jwtToken = cookie.get('token_authenication')
+        fetch('api/usermanagement/myprofile',{method:"GET",headers:{ "Authorization":`Bearer ${jwtToken}`}})
+        .then(response=> response.json())
+        .then(data=>{console.log(data)
+    setadmin(data)})
+    },[])
 
     function toggleSidebar() {
         setIsMinimized(!isMinimized);
     }
-
 
     return (
         <div className="admin-page">

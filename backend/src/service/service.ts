@@ -36,7 +36,17 @@ interface CreateTransaction{
     planid:ObjectId
 
 }
+interface SelectedPlan{
+    _id:ObjectId,
+    image:String,
+    name:String,
+    description:String,
+    start:Date,
+    end:Date,
 
+
+}
+let selectedPlan: SelectedPlan|null = null
 class UserService {
     // Create a new user and address
     async createUser(userData: CreateUsers, addressData: CreateAddress) {
@@ -61,7 +71,7 @@ class UserService {
             return userWithoutPassword;
         } catch (error) {
             console.log(error);
-            return 'Error occurred';
+            return responsemessage.servererror;
         }
     }
 
@@ -178,7 +188,7 @@ class PlanService {
     //Get plan by id
     async getplanbyid(id: string) {
         try {
-            const plan = Plan.findById(id).lean()
+            const plan = await Plan.findById(id).lean()
             if (!plan) {
                 return responsemessage.plannotfound
             }
@@ -191,7 +201,7 @@ class PlanService {
     //Get plan by name
     async getplanbyname(name:string){
         try {
-            const plan = Plan.findOne({name})
+            const plan = await  Plan.findOne({name})
             if(!plan){
                 return responsemessage.plannotfound
             }
@@ -201,23 +211,104 @@ class PlanService {
             return 
         }
     }
-}
-class TransactionService{
-    //create transaction
-    async createtransaction(transactiondetails:CreateTransaction,){
+    async selectplan(plan:SelectedPlan){
         try {
-            const {userid,planid} = transactiondetails
-            const useridverify = User.findById(userid)
-            const planidverify = Plan.findById(planid)
-            if(!useridverify || !planidverify){return responsemessage.transactionfailed}
-            const transaction = await Trans.create(transactiondetails)
-            return transaction
+        if(!plan){
+            return  responsemessage.plannotfound
+        }
+        selectedPlan = plan
+        return plan
         } catch (error) {
-            console.log("Error:",error)
-            return {message:responsemessage.transactionnot}
+            console.log(error)
+            return responsemessage.servererror
         }
     }
+    async getselectedplan(){
+        try {
+            if(selectedPlan){
+                return selectedPlan
+            }
+            else{
+                return "No Plans Selected"
+            }
+        } catch (error) {
+            
+        }
+    }
+
 }
+class TransactionService {
+    // Create transaction
+    async createtransaction(transactiondetails: { userid: string; planid: string; amount: number }) {
+      try {
+        const { userid, planid } = transactiondetails;
+  
+        const useridverify = await User.findById(userid);
+        const planidverify = await Plan.findById(planid);
+  
+        if (!useridverify || !planidverify) {
+          return null; // User or Plan not found, return null
+        }
+  
+        const transaction = await Trans.create(transactiondetails);
+        return transaction;
+      } catch (error) {
+        console.error("Error:", error);
+        return null; // Return null in case of error
+      }
+    }
+  
+    // Get transaction by ID
+    async gettransaction(userid:string,transid:string,planid:string){
+        try {
+            const user = await Trans.findOne({userid:userid,_id:transid,planid:planid}).lean()
+           if(user){
+            return user
+           }
+           return responsemessage.transactionnotfound
+        } catch (error) {
+            console.log('Error',error)
+            return null
+        }
+    }
+    async gettransactionid(userid:string){
+        try {
+            const transaction  = await Trans.find({userid:userid,deleted:false}).lean()
+            if(transaction){
+                return transaction
+            }
+            else{
+                return null
+            }
+        } catch (error) {
+            console.log('Error',error)
+            return null
+        }
+    }
+    async softdeletetransactionid(id:string){
+        try {
+            return await Trans.findByIdAndUpdate(id,{deleted:true})
+        } catch (error) {
+            console.log(error)
+            return null
+        }
+    }
+    async latestplan(userid:string){
+        const latestTransaction = await Trans.findOne({ userid: userid, deleted: false })
+        .sort({ createdAt: -1 })
+        .exec();
+
+    if (!latestTransaction) {
+        throw new Error('No active transactions found for this user.');
+    }
+    const plan = await Plan.findById(latestTransaction.planid).exec();
+    if (!plan) {
+        throw new Error('Plan not found.');
+    }
+    return {plan}
+    }
+  }
+  
 export const UserServices = new UserService();
 export const PlanServices = new PlanService()
 export const TransactionServices = new TransactionService()

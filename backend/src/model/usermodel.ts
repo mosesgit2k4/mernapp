@@ -1,8 +1,5 @@
 import mongoose, { Schema, Document, Model, ObjectId } from "mongoose";
 import bcrypt from "bcrypt";
-import { Blob } from "buffer";
-import { string } from "joi";
-
 interface IUser extends Document {
     _id: ObjectId
     firstName: string;

@@ -220,7 +220,7 @@ class PlanController {
     //create a new plan from admin
     createplan = async (req: Request, res: Response) => {
         try {
-            const { value, error } = PostBody.validate(req.body, { abortEarly: false })
+            const { value, error } = PlanBody.validate(req.body, { abortEarly: false })
             const {image} = value
             if (image === "") {
                 res.status(401).json({ message: responsemessage.imagefailure })
@@ -248,28 +248,125 @@ class PlanController {
             const {name} = req.body
             const plan =  await PlanServices.getplanbyname(name)
             if(!plan){
-                 return res.status(401).json({message:responsemessage.plannotfound})
+                  res.status(401).json({message:responsemessage.plannotfound})
+                  return
             }
-           return res.status(200).send(plan)
+            res.status(200).send(plan)
         } catch (error) {
             console.log(error)
              res.status(500).json({message:responsemessage.servererror})
         }
     }
-}
-class TransactionController{
-//create transaction
-createplan = async (req:Request,res:Response)=>{
-    try {
-        const {userid,planid,amount} =req.body
-        
-        const transaction = await TransactionServices.createtransaction({userid,planid,amount})
-        res.status(200).send(transaction)
-    } catch (error) {
-        console.log("Error:",error)
-        res.status(500).json({message:responsemessage.servererror})
+
+    //
+    selectplan = async(req:Request,res:Response)=>{
+        try {
+            const plan = req.body
+            const selectedplan = await PlanServices.selectplan(plan)
+            if(selectedplan){
+                res.send(selectedplan).status(200)
+            }
+            else{
+                res.json({message:responsemessage.plannotfound})}
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message:responsemessage.servererror})
+        }
+    }
+    selectedplan = async(req:Request,res:Response)=>{
+        try {
+            const selectplan = await PlanServices.getselectedplan()
+            if(selectplan){
+                res.status(200).send(selectplan)
+            }
+        } catch (error) {
+            res.status(500).json({message:responsemessage.servererror})
+        }
     }
 }
+
+class TransactionController {
+    // Create transaction
+    createtransactions = async (req: Request, res: Response) => {
+      try {
+        const { userid, planid, amount } = req.body;
+  
+        const transaction = await TransactionServices.createtransaction({ userid, planid, amount });
+  
+        if (!transaction) {
+           res.status(400).json({ message: responsemessage.transactionfailed });
+           return
+        }
+  
+        res.status(200).json(transaction);
+      } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: responsemessage.servererror });
+      }
+    };
+  
+    // Get transaction by ID
+    getransactionbyid = async (req: AuthenticatedRequest, res: Response) => {
+      try {
+        const  id = req.profileid
+
+        if (id) {
+            const id2 = id.toString()
+            const transid = await TransactionServices.gettransactionid(id2)
+            if(!transid|| transid.length === 0){
+               res.status(400).json({message:responsemessage.notransaction})
+               return
+            }
+            const len = transid.length
+            const lasttransaction = transid[len-1]
+            if(!lasttransaction||!lasttransaction.planid){
+                res.status(400).json({message:"Invalid Transaction "})
+                return
+            }
+            const planid = lasttransaction.planid
+            const transaction = await TransactionServices.gettransaction(id2,transid[len -1]._id.toString(),planid.toString())
+                if(!transaction){
+                    res.status(400).json({message:responsemessage.transactionfailed})
+                    return
+                }
+                res.status(200).json(transaction)
+           
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: responsemessage.servererror });
+      }
+    }
+    softdeletetransactionid = async (req:Request,res:Response)=>{
+        try {
+            const {id} = req.body
+        const softdelete = await TransactionServices.softdeletetransactionid(id)
+        if(softdelete){
+            res.status(200).json({message:"Unsubscribed Successfully"})
+        }
+        else{
+            res.status(400).json({message:"Did not unsubscribe"})
+        }
+        } catch (error) {
+         console.log(error)   
+         res.status(500).json(responsemessage.servererror)
+        }
+    }
+    latestplan = async(req:AuthenticatedRequest,res:Response)=>{
+        const userid = req.profileid
+        try {
+            if(userid){
+                const userid2 = userid.toString()
+                const plan = await TransactionServices.latestplan(userid2)
+                if(plan){
+                    res.status(200).send(plan)
+                }
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message:responsemessage.servererror})
+        }
+    }
 }
 export const UserControllers = new UserController()
 export const PlanControllers = new PlanController()

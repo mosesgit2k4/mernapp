@@ -18,7 +18,11 @@ userManagementRouter.put('/myprofile', usersSessionHandler, UserControllers.Upda
 userManagementRouter.post("/plans",upload, PlanControllers.createplan);
 userManagementRouter.get('/plans', PlanControllers.getplan);
 userManagementRouter.post('/planbyid', PlanControllers.getplanid);  
+userManagementRouter.post('/plantobeselected',PlanControllers.selectplan)
+userManagementRouter.get('/planselected',PlanControllers.selectedplan)
 
 
-
-userManagementRouter.post('/transaction',TransactionControllers.createplan)
+userManagementRouter.post('/transaction', TransactionControllers.createtransactions);
+userManagementRouter.get('/transaction',usersSessionHandler, TransactionControllers.getransactionbyid);
+userManagementRouter.delete('/transactiondelete',TransactionControllers.softdeletetransactionid)
+userManagementRouter.get('/latestplan',usersSessionHandler,TransactionControllers.latestplan)

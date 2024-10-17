@@ -1,10 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import './subscription.css'
 import { useNavigate } from "react-router-dom";
+import Cookies from "universal-cookie";
 function Subscription() {
     const navigator = useNavigate()
-    const user = JSON.parse(localStorage.getItem('userDetails'))
-    const plan = JSON.parse(localStorage.getItem("plan"));
+    const [user,setuser] = useState('')
+    const [plan,setplan] = useState('')
+    const [amount,setamount] = useState(0)
+    useEffect(()=>{
+        const cookie = new Cookies()
+        const jwtToken = cookie.get('token_authenication')
+        fetch('api/usermanagement/myprofile',{method:"GET",headers: { "Authorization": `Bearer ${jwtToken}` }})
+        .then(response => response.json())
+        .then(data => {
+            setuser(data)
+        });
+        fetch('api/usermanagement/planselected',{method:"GET",headers:{"Content-Type":"application/json"}}).then(response=>response.json()).then(data=>setplan(data))
+    },[])
+    
     if(!plan){
         return <p>No Plan Details available</p>
     }
@@ -14,14 +27,15 @@ function Subscription() {
         let transactiondetails = {
             userid:userid,
             planid:planid,
-            amount:500
+            amount:amount
         }
         console.log('Payment processing...');
         fetch('api/usermanagement/transaction',{
             method:"POST",
             headers:{"Content-Type":"application/json"},
             body:JSON.stringify(transactiondetails)
-        }).then(response =>{return response.json()}).then(data=>{console.log(data)})
+        }).then(response =>{return response.json()}).then(data=>{
+            console.log(data)})
         navigator('/user')
     }
     return (
@@ -46,6 +60,10 @@ function Subscription() {
                     <div>
                         <label htmlFor="cvv">CVV:</label>
                         <input type="text" id="cvv" placeholder="123" />
+                    </div>
+                    <div>
+                        <label htmlFor="amount">Amount:</label>
+                        <input type="text" id="amount" placeholder="Enter an amount" value={amount} onChange={e=>setamount(e.target.value)}/>
                     </div>
                     <div className="buttonforpay">
                         <button type="button" onClick={handlePayment}>Pay Now</button>

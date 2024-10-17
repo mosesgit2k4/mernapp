@@ -14,7 +14,7 @@ function Homepage() {
     }, []);
 
     function subscriptionToPlan(plan) {
-        localStorage.setItem('plan',JSON.stringify(plan))
+        fetch('api/usermanagement/plantobeselected',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(plan)}).then(response=>response.json()).then(data=>console.log(data))
         navigate("/subscription");
     }
 

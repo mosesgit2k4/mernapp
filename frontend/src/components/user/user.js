@@ -1,5 +1,6 @@
-import React, {useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Cookies from "universal-cookie";
 import { Navbar, Nav, Dropdown } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
@@ -7,21 +8,40 @@ import './user.css';
 
 function User() {
     const navigate = useNavigate();
-    const user = JSON.parse(localStorage.getItem("userDetails"))
+    const [user,setuser] = useState('')
     const [isMinimized, setIsMinimized] = useState(false);
-    const [subcribed,setsubcribed] = useState(false)
-    const plan = JSON.parse(localStorage.getItem('subscribed'))
+    const [isSubscribed, setIsSubscribed] = useState(false); 
+
     function toggleSidebar() {
         setIsMinimized(!isMinimized);
     }
-    useEffect(()=>{
-        if(plan === true){
-            setsubcribed(true)
-        }
-        else{
-            setsubcribed(false)
-        }
-    },[plan])
+
+    useEffect(() => {
+        const cookies = new Cookies();
+        const jwtToken = cookies.get("token_authenication");
+
+        fetch('api/usermanagement/transaction', {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${jwtToken}` }
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                if(data.message === "No Transaction found"){
+                    setIsSubscribed(false)
+                }
+                else{
+                    setIsSubscribed(true)
+                }
+            });
+
+            fetch('api/usermanagement/myprofile',{method:"GET",headers: { "Authorization": `Bearer ${jwtToken}` }})
+            .then(response => response.json())
+            .then(data => {
+                setuser(data)
+            });
+        
+    }, []);
 
     return (
         <div className="admin-page">
@@ -29,13 +49,15 @@ function User() {
                 <Navbar bg="dark" variant="dark" expand="lg" className="flex-column sidebar-navbar">
                     <Navbar.Brand>User</Navbar.Brand>
                     <Nav className="flex-column mt-4">
-                    {subcribed?<Nav.Link as={Link} to="/plan">Plan</Nav.Link>:null}
-                    {!subcribed?<Nav.Link as={Link} to="/subscribed">Subscription</Nav.Link>:null}
-                        
+                        {isSubscribed ? (
+                            <Nav.Link as={Link} to="/subscribed">Subscription</Nav.Link>
+                        ) : (
+                            <Nav.Link as={Link} to="/plan">Plan</Nav.Link>
+                        )}
                     </Nav>
                     <Dropdown className="mt-auto dropup">
                         <Dropdown.Toggle variant="secondary" id="dropdown-basic">
-                            {user.firstName||"User"}
+                            {user.firstName || "User"}
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                             <Dropdown.Item onClick={() => { navigate('/login'); }}>Logout</Dropdown.Item>
