@@ -66,3 +66,12 @@
 .buttonforpay{
     align-items: center;
 }
+.payment-status{
+    font-size: 18px;
+}
+.payment-status.success{
+    color: green;
+}
+.payment-status.failed{
+    color:red;
+}
