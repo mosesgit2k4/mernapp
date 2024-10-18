@@ -34,8 +34,7 @@ function Subscription() {
             method:"POST",
             headers:{"Content-Type":"application/json"},
             body:JSON.stringify(transactiondetails)
-        }).then(response =>{return response.json()}).then(data=>{
-            console.log(data)})
+        }).then(response =>{return response.json()})
         navigator('/user')
     }
     return (
@@ -66,7 +65,7 @@ function Subscription() {
                         <input type="text" id="amount" placeholder="Enter an amount" value={amount} onChange={e=>setamount(e.target.value)}/>
                     </div>
                     <div className="buttonforpay">
-                        <button type="button" onClick={handlePayment}>Pay Now</button>
+                        <button type="button" onClick={handlePayment} className="btn btn-primary">Pay Now</button>
                     </div>
                 </form>
             </div>
