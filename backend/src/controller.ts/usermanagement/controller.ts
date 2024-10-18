@@ -1,4 +1,4 @@
-import { Response, Request } from "express";
+import { Response, Request, NextFunction } from "express";
 import { UserServices, PlanServices, TransactionServices } from "../../service/service";
 import { compare } from "bcrypt";
 import { sign } from 'jsonwebtoken'
@@ -29,36 +29,39 @@ let transporter = nodemailer.createTransport({
 
 class UserController {
     //Register
-    createUser = async (req: Request, res: Response) => {
+    createUser = async (req: Request, res: Response,next:NextFunction) => {
         try {
             const { value, error } = PostBody.validate(req.body, { abortEarly: false })
             const { firstName, lastName, email, username, password, phonenumber, isadmin, image, country, state, city, addresses, zipcode, type } = value
             const emailval = await UserServices.getusersByemail(email)
             const usernameval = await UserServices.getUserByUsername(username)
             if (error) {
-                res.status(401).json({ message: error.details[0].message })
-                return
+                res.status(401)
+                return next(new Error(error.details[0].message)) 
             }
             if (usernameval) {
-                res.status(401).json({ message: responsemessage.userexist })
-                return
+                res.status(401)
+                return next(new Error(responsemessage.userexist))
             }
             if (emailval) {
-                res.status(401).json({ message: responsemessage.emailexist })
+                res.status(401)
+                return next(new Error(responsemessage.emailexist))
             }
             const user = await UserServices.createUser({ firstName, lastName, email, username, password, phonenumber, image, isadmin }, { country, state, city, addresses, zipcode, type })
-            res.status(200).send(user)
+            res.status(200).json(user)
         } catch (error) {
             console.log("Error", error)
+            res.status(500).json({message:responsemessage.servererror})
         }
     }
     //login
-    loginUser = async (req: LoginRequest, res: any) => {
+    loginUser = async (req: LoginRequest, res: any ,next:NextFunction) => {
         const { username, password } = req.body;
         try {
             const user = await UserServices.getUserByUsername(username);
             if (!user) {
-                return res.status(400).json({ message: responsemessage.invalidusername });
+                res.status(400)
+                return next(new Error(responsemessage.invalidusername))
             }
             const passwordMatch = await compare(password, user.password as string);
             if (passwordMatch) {
@@ -66,11 +69,12 @@ class UserController {
                 const jwtToken = sign(payload, secret_token, { expiresIn: '1h' });
                 return res.status(200).json({ jwtToken, admin: user.isadmin });
             } else {
-                return res.status(400).json({ message: responsemessage.invalidpassword });
+                res.status(400)
+                return next( new Error(responsemessage.invalidpassword))
             }
         } catch (error) {
             console.error('Login error:', error);
-            return res.status(500).json({ message: responsemessage.servererror });
+             res.status(500).json({ message: responsemessage.servererror });
         }
     };
 
@@ -97,45 +101,52 @@ class UserController {
                     }
                 });
             } else {
-                return res.status(401).json({ message: responsemessage.invalidemail });
+                res.status(401)
+                throw new Error(responsemessage.invalidemail)
             }
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ message: responsemessage.otpnotgenerating });
+            res.status(500).json({ message: responsemessage.otpnotgenerating });
         }
     }
     //confirmpassword
-    confirmpassword = async (req: any, res: any) => {
+    confirmpassword = async (req: any, res: any,next:NextFunction) => {
         const { newpassword, confirmpassword } = req.body;
 
         try {
 
             let email1 = emailstore[0];
             if (!email1) {
-                return res.status(400).json({ message: responsemessage.emailnotfound });
+                 res.status(400)
+                 throw new Error(responsemessage.emailnotfound)
             }
 
             if (newpassword.length < 8) {
-                return res.status(400).json({ message: responsemessage.passwordlength });
+                 res.status(400)
+                 return next(new Error(responsemessage.passwordlength))
             }
 
             const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/;
             if (!passwordRegex.test(newpassword)) {
-                return res.status(400).json({ message: responsemessage.passwordcharacters });
+                 res.status(400)
+                 return next(new Error(responsemessage.passwordcharacters))
             }
 
             const emailverify = await UserServices.getusersByemail(email1);
             if (!emailverify) {
-                return res.status(404).json({ message: responsemessage.invalidemail });
+                 res.status(404)
+                 return next(new Error(responsemessage.invalidemail))
             }
 
             const isSamePassword = await compare(newpassword, emailverify.password);
             if (isSamePassword) {
-                return res.status(400).json({ message: responsemessage.samepassworderrror });
+                res.status(400)
+                return next( new Error(responsemessage.samepassworderrror))
             }
 
             if (newpassword !== confirmpassword) {
-                return res.status(400).json({ message: responsemessage.newandconfirmpassworderror });
+                res.status(400)
+                return next(new Error(responsemessage.newandconfirmpassworderror))
             }
 
             const updatedResult = await UserServices.updatepassword(email1, newpassword, confirmpassword);
@@ -143,9 +154,10 @@ class UserController {
             if (updatedResult) {
                 otp_store = [];
                 emailstore = [];
-                return res.status(200).json({ message: responsemessage.passwordupdated });
+                 res.status(200).json({ message: responsemessage.passwordupdated });
             } else {
-                return res.status(500).json({ message: responsemessage.passwordupdfailure });
+                res.status(400)
+                return next(new Error(responsemessage.passwordupdfailure))
             }
 
         } catch (error) {
@@ -154,21 +166,23 @@ class UserController {
         }
     }
     //resetpassword
-    resetpassword = async (req: Request, res: Response) => {
+    resetpassword = async (req: Request, res: Response,next:NextFunction) => {
         try {
             const otp = req.body;
             if (otp.otp === otp_store[0]) {
                 res.status(200).json({ message: responsemessage.otpverified })
             }
             else {
-                res.status(401).json({ message: responsemessage.otpfailure })
+                res.status(401)
+                return next(new Error(responsemessage.otpfailure))
             }
         } catch (error) {
             console.log(error)
+            res.status(500).json({message:responsemessage.servererror})
         }
     }
     //getusers
-    getuserprofile = async (req: AuthenticatedRequest, res: Response) => {
+    getuserprofile = async (req: AuthenticatedRequest, res: Response,next:NextFunction) => {
         try {
             const profileid = req.profileid;
             if (profileid) {
@@ -177,16 +191,18 @@ class UserController {
                 if (user) {
                     res.status(200).json(user);
                 } else {
-                    res.status(404).json({ message: responsemessage.usernotfound });
+                    res.status(404)
+                    return next(new Error(responsemessage.usernotfound))
+                    
                 }
             }
         } catch (error) {
-            console.error('Get user profile error:', error);
+            console.error(error);
             res.status(500).json({ message: responsemessage.servererror });
         }
     }
     //update user
-    Updateuser = async (req: AuthenticatedRequest, res: Response) => {
+    Updateuser = async (req: AuthenticatedRequest, res: Response,next:NextFunction) => {
         try {
             if (req.profileid !== undefined) {
                 const idinobjectId = req.profileid;
@@ -196,38 +212,41 @@ class UserController {
                 if (updateduser) {
                     res.status(200).json({ message: responsemessage.userupdated });
                 } else {
-                    res.status(404).json({ message: responsemessage.usernotfound });
+                    res.status(404)
+                    return next(new Error(responsemessage.usernotfound))
                 }
             } else {
-                res.status(400).json({ message: responsemessage.profileidmissing });
+                res.status(400)
+                return next(new Error(responsemessage.profileidmissing))
 
             }
         } catch (error) {
             console.log(error)
+            res.status(500).json({message:responsemessage.servererror})
         }
     }
     getallusers = async(req:Request,res:Response)=>{
         try {
             const user = await UserServices.getusers(); 
-            res.send(user)
+            res.json(user)
         } catch (error) {
             console.log(error)
-            res.status(500).json({message:"Internal Server Error"})
+            res.status(500).json({message:responsemessage.servererror})
         }
     }
 }
 class PlanController {
     //create a new plan from admin
-    createplan = async (req: Request, res: Response) => {
+    createplan = async (req: Request, res: Response,next:NextFunction) => {
         try {
             const { value, error } = PlanBody.validate(req.body, { abortEarly: false })
             const {image} = value
             if (image === "") {
-                res.status(401).json({ message: responsemessage.imagefailure })
-                return
+                res.status(401)
+                return next(new Error(responsemessage.imagefailure))
             }
             const plan = await PlanServices.createplans(value)
-            res.status(200).send(plan)
+            res.status(200).json(plan)
         } catch (error) {
             console.log(error)
             res.status(500).json({ message: responsemessage.servererror })
@@ -237,21 +256,21 @@ class PlanController {
     getplan = async (req: Request, res: Response) => {
         try {
             const plans = await PlanServices.getplans();
-            res.send(plans)
+            res.json(plans)
         } catch (error) {
             console.log(error)
         }
     }
     //get plan by id 
-    getplanid = async (req: any, res: any) => {
+    getplanid = async (req: any, res: any,next:NextFunction) => {
         try {
             const {name} = req.body
             const plan =  await PlanServices.getplanbyname(name)
             if(!plan){
-                  res.status(401).json({message:responsemessage.plannotfound})
-                  return
+                  res.status(401)
+                  return next(new Error(responsemessage.plannotfound))
             }
-            res.status(200).send(plan)
+            res.status(200).json(plan)
         } catch (error) {
             console.log(error)
              res.status(500).json({message:responsemessage.servererror})
@@ -259,15 +278,16 @@ class PlanController {
     }
 
     //
-    selectplan = async(req:Request,res:Response)=>{
+    selectplan = async(req:Request,res:Response,next:NextFunction)=>{
         try {
             const plan = req.body
             const selectedplan = await PlanServices.selectplan(plan)
             if(selectedplan){
-                res.send(selectedplan).status(200)
+                res.json(selectedplan).status(200)
             }
             else{
-                res.json({message:responsemessage.plannotfound})}
+                res.status(400)
+                return next(new Error(responsemessage.plannotfound))}
         } catch (error) {
             console.log(error)
             res.status(500).json({message:responsemessage.servererror})
@@ -277,7 +297,7 @@ class PlanController {
         try {
             const selectplan = await PlanServices.getselectedplan()
             if(selectplan){
-                res.status(200).send(selectplan)
+                res.status(200).json(selectplan)
             }
         } catch (error) {
             res.status(500).json({message:responsemessage.servererror})
@@ -287,15 +307,15 @@ class PlanController {
 
 class TransactionController {
     // Create transaction
-    createtransactions = async (req: Request, res: Response) => {
+    createtransactions = async (req: Request, res: Response,next:NextFunction) => {
       try {
         const { userid, planid, amount } = req.body;
   
         const transaction = await TransactionServices.createtransaction({ userid, planid, amount });
   
         if (!transaction) {
-           res.status(400).json({ message: responsemessage.transactionfailed });
-           return
+           res.status(400)
+           return next(new Error(responsemessage.transactionfailed))
         }
   
         res.status(200).json(transaction);
@@ -306,7 +326,7 @@ class TransactionController {
     };
   
     // Get transaction by ID
-    getransactionbyid = async (req: AuthenticatedRequest, res: Response) => {
+    getransactionbyid = async (req: AuthenticatedRequest, res: Response,next:NextFunction) => {
       try {
         const  id = req.profileid
 
@@ -314,20 +334,20 @@ class TransactionController {
             const id2 = id.toString()
             const transid = await TransactionServices.gettransactionid(id2)
             if(!transid|| transid.length === 0){
-               res.status(400).json({message:responsemessage.notransaction})
-               return
+               res.status(400)
+               return next(new Error(responsemessage.notransaction))
             }
             const len = transid.length
             const lasttransaction = transid[len-1]
             if(!lasttransaction||!lasttransaction.planid){
-                res.status(400).json({message:"Invalid Transaction "})
-                return
+                res.status(400)
+                return next(new Error(responsemessage.invalidtransaction))
             }
             const planid = lasttransaction.planid
             const transaction = await TransactionServices.gettransaction(id2,transid[len -1]._id.toString(),planid.toString())
                 if(!transaction){
-                    res.status(400).json({message:responsemessage.transactionfailed})
-                    return
+                    res.status(400)
+                    return next(new Error(responsemessage.transactionfailed))
                 }
                 res.status(200).json(transaction)
            
@@ -337,15 +357,17 @@ class TransactionController {
         res.status(500).json({ message: responsemessage.servererror });
       }
     }
-    softdeletetransactionid = async (req:Request,res:Response)=>{
+    softdeletetransactionid = async (req:Request,res:Response,next:NextFunction)=>{
         try {
             const {id} = req.body
         const softdelete = await TransactionServices.softdeletetransactionid(id)
         if(softdelete){
-            res.status(200).json({message:"Unsubscribed Successfully"})
+            res.status(200).json({message:responsemessage.unsubscribesuccefully})
         }
         else{
-            res.status(400).json({message:"Did not unsubscribe"})
+            res.status(400)
+            return next(new Error(responsemessage.didnotunsubscribe))
+           
         }
         } catch (error) {
          console.log(error)   
@@ -359,8 +381,36 @@ class TransactionController {
                 const userid2 = userid.toString()
                 const plan = await TransactionServices.latestplan(userid2)
                 if(plan){
-                    res.status(200).send(plan)
+                    res.status(200).json(plan)
                 }
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message:responsemessage.servererror})
+        }
+    }
+    transactionhistory = async(req:Request,res:Response,next:NextFunction)=>{
+        const {userid} = req.body
+        try {
+                const transactions = await TransactionServices.transactionhistory(userid)
+                if(!transactions){
+                    return next(new Error("No Transaction"))
+                }
+                res.status(200).json(transactions)
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message:responsemessage.servererror})
+        }
+    }
+    transactionhistorydetails = async (req:Request,res:Response,next:NextFunction)=>{
+        try {
+            const transactiondetails = await TransactionServices.transactionhistorydetails()
+            if(transactiondetails){
+                res.status(200).json(transactiondetails)
+            }
+            else{
+                res.status(400)
+                return next(new Error(responsemessage.transactionnotfound))
             }
         } catch (error) {
             console.log(error)

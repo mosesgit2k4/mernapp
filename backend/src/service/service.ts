@@ -46,6 +46,7 @@ interface SelectedPlan{
 
 
 }
+let transactions:object= []
 let selectedPlan: SelectedPlan|null = null
 class UserService {
     // Create a new user and address
@@ -65,7 +66,7 @@ class UserService {
         try {
             const user = await User.findById(id).lean();
             if (!user) {
-                return responsemessage.usernotfound;
+                throw new Error(responsemessage.usernotfound)
             }
             const { password, ...userWithoutPassword } = user;
             return userWithoutPassword;
@@ -78,7 +79,7 @@ class UserService {
     // Get user by email
     async getusersByemail(email: string) {
         try {
-            return await User.findOne({ email }).lean();
+            return  User.findOne({ email }).lean();
         } catch (error) {
             console.log(error);
         }
@@ -87,7 +88,7 @@ class UserService {
     // Get user by username
     async getUserByUsername(username: string) {
         try {
-            return await User.findOne({ username }).lean();
+            return  User.findOne({ username }).lean();
         } catch (error) {
             console.log(error);
         }
@@ -96,7 +97,7 @@ class UserService {
     // Get user by phone number
     async getUsersByphone(mobilephone: number) {
         try {
-            return await User.findOne({ mobilephone }).lean();
+            return  User.findOne({ mobilephone }).lean();
         } catch (error) {
             console.log(error);
         }
@@ -105,7 +106,7 @@ class UserService {
     // Update user password
     async updatepassword(email: string, newpassword: string, confirmpassword: string) {
         if (newpassword !== confirmpassword) {
-            return responsemessage.passwordnotmatch;
+           throw new Error(responsemessage.passwordnotmatch)
         }
         try {
             const hashedPassword = await bcrypt.hash(newpassword, 10);
@@ -178,7 +179,7 @@ class PlanService {
         try {
             const plans = await Plan.find().lean();
             if (!plans) {
-                return 'No plans found';
+                throw new Error(responsemessage.noplanfound);
             }
             return plans;
         } catch (error) {
@@ -229,10 +230,11 @@ class PlanService {
                 return selectedPlan
             }
             else{
-                return "No Plans Selected"
+                throw new Error("No plan selected")
             }
         } catch (error) {
-            
+            console.log(error)
+            return responsemessage.servererror
         }
     }
 
@@ -247,14 +249,14 @@ class TransactionService {
         const planidverify = await Plan.findById(planid);
   
         if (!useridverify || !planidverify) {
-          return null; // User or Plan not found, return null
+          return null; 
         }
   
         const transaction = await Trans.create(transactiondetails);
         return transaction;
       } catch (error) {
         console.error("Error:", error);
-        return null; // Return null in case of error
+        return null;
       }
     }
   
@@ -294,7 +296,8 @@ class TransactionService {
         }
     }
     async latestplan(userid:string){
-        const latestTransaction = await Trans.findOne({ userid: userid, deleted: false })
+        try {
+            const latestTransaction = await Trans.findOne({ userid: userid, deleted: false })
         .sort({ createdAt: -1 })
         .exec();
 
@@ -306,6 +309,47 @@ class TransactionService {
         throw new Error('Plan not found.');
     }
     return {plan}
+        } catch (error) {
+            console.log(error)
+            return responsemessage.servererror
+        }
+    }
+    async transactionhistory(userid:string){
+        try {
+            // Fetch all transactions for the user
+            const transactionhistory = await Trans.find({ userid }).exec();
+      
+            if (!transactionhistory || transactionhistory.length === 0) {
+              throw new Error('No Transaction found');
+            }
+      
+            
+            const plandetails = await Promise.all(
+              transactionhistory.map(async (transaction) => {
+                const plan = await Plan.findById(transaction.planid).lean().exec();
+                const details = { ...transaction.toObject(), 
+                    name: plan?.name || 'Unknown Plan',
+                    image: plan?.image || 'No Image Available',}
+                return details;
+              })
+            );
+      
+            transactions = plandetails; 
+            return plandetails;
+          } catch (error) {
+            console.error(error);
+            return { message: responsemessage.servererror };
+          }
+    }
+    async transactionhistorydetails(){
+        try {
+            if(transactions){
+                return transactions
+            }
+        } catch (error) {
+            console.log(error)
+            return responsemessage.servererror
+        }
     }
   }
   
