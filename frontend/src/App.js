@@ -15,6 +15,7 @@ import UserDetailsforadmin from './components/userdetails/users';
 import User from './components/user/user';
 import Subscribed from './components/subcribed/subscribed';
 import ViewDetails from './components/viewdetails/viewdetails';
+import Plandetails from './components/plandetailsforadmin/plandetails';
 function App() {
   return (
     <div className='App'>
@@ -35,6 +36,7 @@ function App() {
           <Route path='/user' element = {<User/>}/>
           <Route path='/subscribed' element = {<Subscribed/>}/>
           <Route path='/viewdetails' element = {<ViewDetails/>}/>
+          <Route path='/plandetails' element = {<Plandetails/>}/>
         </Routes>
       </BrowserRouter>
     </div>

@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 function ViewDetails(){
     const [users,setuser] = useState([])
+    const [transactionisfound,settransactionisfound] = useState(false)
     useEffect(()=>{
         fetch('api/usermanagement/transactionhistory',{method:"GET",headers:{"Content-Type":"application/json"}}).then(response=>response.json()).then(data=>{console.log(data)
+            settransactionisfound(true)
             setuser(data)})
     },[])
     return(
-        <div className="container">
+        <>
+        {transactionisfound ? (<div className="container">
         <h1>Transaction </h1>
         <div className="plans-grid">
             {users.map(user => (
@@ -22,7 +25,8 @@ function ViewDetails(){
                 </div>
             ))}
         </div>
-    </div>
+        </div>):(<div>No Plans for this User</div>)}
+    </>
     )
 }
 
