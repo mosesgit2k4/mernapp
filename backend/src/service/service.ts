@@ -316,7 +316,6 @@ class TransactionService {
     }
     async transactionhistory(userid:string){
         try {
-            // Fetch all transactions for the user
             const transactionhistory = await Trans.find({ userid }).exec();
       
             if (!transactionhistory || transactionhistory.length === 0) {

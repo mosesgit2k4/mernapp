@@ -1,9 +1,10 @@
-import { Request, Response, NextFunction } from "express";
-
-const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-    res.status(err.status || 500).json({
-        message: err.message || "Internal Server Error",
-    });
-};
-
-export default errorHandler;
+class CustomError extends Error {
+    statusCode: number;
+    
+    constructor(message: string, statusCode: number) {
+        super(message);
+        this.statusCode = statusCode;
+        Error.captureStackTrace(this, this.constructor);
+    }
+}
+export default CustomError

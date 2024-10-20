@@ -8,6 +8,7 @@ import nodemailer from 'nodemailer'
 import dotenv, { secret_token } from "../../config/dotenv";
 import { AuthenticatedRequest } from "../../authHandler/middlewareauthHandler";
 import responsemessage from "../../responsemessage";
+import CustomError from "../../authHandler/errorhandling";
 
 interface LoginRequest extends Request {
     body: {
@@ -36,22 +37,26 @@ class UserController {
             const emailval = await UserServices.getusersByemail(email)
             const usernameval = await UserServices.getUserByUsername(username)
             if (error) {
-                res.status(401)
-                return next(new Error(error.details[0].message)) 
+                res.status(400)
+                throw new Error(error.details[0].message)
             }
             if (usernameval) {
                 res.status(401)
-                return next(new Error(responsemessage.userexist))
+                throw new CustomError(responsemessage.userexist,401)
             }
             if (emailval) {
                 res.status(401)
-                return next(new Error(responsemessage.emailexist))
+                throw new CustomError(responsemessage.emailexist,401)
             }
             const user = await UserServices.createUser({ firstName, lastName, email, username, password, phonenumber, image, isadmin }, { country, state, city, addresses, zipcode, type })
             res.status(200).json(user)
         } catch (error) {
-            console.log("Error", error)
-            res.status(500).json({message:responsemessage.servererror})
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message});
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
         }
     }
     //login
@@ -61,7 +66,7 @@ class UserController {
             const user = await UserServices.getUserByUsername(username);
             if (!user) {
                 res.status(400)
-                return next(new Error(responsemessage.invalidusername))
+                throw new CustomError(responsemessage.invalidusername,400)
             }
             const passwordMatch = await compare(password, user.password as string);
             if (passwordMatch) {
@@ -70,11 +75,15 @@ class UserController {
                 return res.status(200).json({ jwtToken, admin: user.isadmin });
             } else {
                 res.status(400)
-                return next( new Error(responsemessage.invalidpassword))
+                throw new CustomError(responsemessage.invalidpassword,400)
             }
         } catch (error) {
-            console.error('Login error:', error);
-             res.status(500).json({ message: responsemessage.servererror });
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message});
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
         }
     };
 
@@ -102,11 +111,15 @@ class UserController {
                 });
             } else {
                 res.status(401)
-                throw new Error(responsemessage.invalidemail)
+                throw new CustomError(responsemessage.invalidemail,401)
             }
         } catch (error) {
-            console.log(error);
-            res.status(500).json({ message: responsemessage.otpnotgenerating });
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message});
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
         }
     }
     //confirmpassword
@@ -123,30 +136,30 @@ class UserController {
 
             if (newpassword.length < 8) {
                  res.status(400)
-                 return next(new Error(responsemessage.passwordlength))
+                 throw new CustomError(responsemessage.passwordlength,400)
             }
 
             const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/;
             if (!passwordRegex.test(newpassword)) {
                  res.status(400)
-                 return next(new Error(responsemessage.passwordcharacters))
+                 throw new CustomError(responsemessage.passwordcharacters,400)
             }
 
             const emailverify = await UserServices.getusersByemail(email1);
             if (!emailverify) {
                  res.status(404)
-                 return next(new Error(responsemessage.invalidemail))
+                 throw new CustomError(responsemessage.invalidemail,404)
             }
 
             const isSamePassword = await compare(newpassword, emailverify.password);
             if (isSamePassword) {
                 res.status(400)
-                return next( new Error(responsemessage.samepassworderrror))
+                throw new CustomError(responsemessage.samepassworderrror,400)
             }
 
             if (newpassword !== confirmpassword) {
                 res.status(400)
-                return next(new Error(responsemessage.newandconfirmpassworderror))
+                throw new CustomError(responsemessage.newandconfirmpassworderror,400)
             }
 
             const updatedResult = await UserServices.updatepassword(email1, newpassword, confirmpassword);
@@ -157,12 +170,16 @@ class UserController {
                  res.status(200).json({ message: responsemessage.passwordupdated });
             } else {
                 res.status(400)
-                return next(new Error(responsemessage.passwordupdfailure))
+                throw new CustomError(responsemessage.passwordupdfailure,400)
             }
 
         } catch (error) {
-            console.error("Error updating password:", error);
-            return res.status(500).json({ message: responsemessage.passwordupderror });
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message});
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
         }
     }
     //resetpassword
@@ -174,11 +191,15 @@ class UserController {
             }
             else {
                 res.status(401)
-                return next(new Error(responsemessage.otpfailure))
+                throw new CustomError(responsemessage.otpfailure,401)
             }
         } catch (error) {
-            console.log(error)
-            res.status(500).json({message:responsemessage.servererror})
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message});
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
         }
     }
     //getusers
@@ -192,13 +213,17 @@ class UserController {
                     res.status(200).json(user);
                 } else {
                     res.status(404)
-                    return next(new Error(responsemessage.usernotfound))
+                    throw new CustomError(responsemessage.usernotfound,404)
                     
                 }
             }
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: responsemessage.servererror });
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message});
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
         }
     }
     //update user
@@ -213,16 +238,20 @@ class UserController {
                     res.status(200).json({ message: responsemessage.userupdated });
                 } else {
                     res.status(404)
-                    return next(new Error(responsemessage.usernotfound))
+                    throw new CustomError(responsemessage.usernotfound,404)
                 }
             } else {
                 res.status(400)
-                return next(new Error(responsemessage.profileidmissing))
+                throw new CustomError(responsemessage.profileidmissing,400)
 
             }
         } catch (error) {
-            console.log(error)
-            res.status(500).json({message:responsemessage.servererror})
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message});
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
         }
     }
     getallusers = async(req:Request,res:Response)=>{
@@ -243,13 +272,17 @@ class PlanController {
             const {image} = value
             if (image === "") {
                 res.status(401)
-                return next(new Error(responsemessage.imagefailure))
+                throw new CustomError(responsemessage.imagefailure,401)
             }
             const plan = await PlanServices.createplans(value)
             res.status(200).json(plan)
         } catch (error) {
-            console.log(error)
-            res.status(500).json({ message: responsemessage.servererror })
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message});
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
         }
     }
     //getplan from user side
@@ -268,12 +301,16 @@ class PlanController {
             const plan =  await PlanServices.getplanbyname(name)
             if(!plan){
                   res.status(401)
-                  return next(new Error(responsemessage.plannotfound))
+                 throw new CustomError(responsemessage.plannotfound,401)
             }
             res.status(200).json(plan)
         } catch (error) {
-            console.log(error)
-             res.status(500).json({message:responsemessage.servererror})
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message});
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
         }
     }
 
@@ -287,10 +324,14 @@ class PlanController {
             }
             else{
                 res.status(400)
-                return next(new Error(responsemessage.plannotfound))}
+                throw new CustomError(responsemessage.plannotfound,400)}
         } catch (error) {
-            console.log(error)
-            res.status(500).json({message:responsemessage.servererror})
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message});
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
         }
     }
     selectedplan = async(req:Request,res:Response)=>{
@@ -315,13 +356,17 @@ class TransactionController {
   
         if (!transaction) {
            res.status(400)
-           return next(new Error(responsemessage.transactionfailed))
+          throw new CustomError(responsemessage.transactionfailed,400)
         }
   
         res.status(200).json(transaction);
       } catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ message: responsemessage.servererror });
+        if (error instanceof CustomError) {
+            res.status(error.statusCode).json({ message: error.message});
+        } else {
+            console.error("Error:", error);
+            res.status(500).json({ message: responsemessage.servererror });
+        }
       }
     };
   
@@ -335,26 +380,30 @@ class TransactionController {
             const transid = await TransactionServices.gettransactionid(id2)
             if(!transid|| transid.length === 0){
                res.status(400)
-               return next(new Error(responsemessage.notransaction))
+              throw new CustomError(responsemessage.notransaction,400)
             }
             const len = transid.length
             const lasttransaction = transid[len-1]
             if(!lasttransaction||!lasttransaction.planid){
                 res.status(400)
-                return next(new Error(responsemessage.invalidtransaction))
+                throw new CustomError(responsemessage.invalidtransaction,400)
             }
             const planid = lasttransaction.planid
             const transaction = await TransactionServices.gettransaction(id2,transid[len -1]._id.toString(),planid.toString())
                 if(!transaction){
                     res.status(400)
-                    return next(new Error(responsemessage.transactionfailed))
+                   throw new CustomError(responsemessage.transactionfailed,400)
                 }
                 res.status(200).json(transaction)
            
         }
       } catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ message: responsemessage.servererror });
+        if (error instanceof CustomError) {
+            res.status(error.statusCode).json({ message: error.message});
+        } else {
+            console.error("Error:", error);
+            res.status(500).json({ message: responsemessage.servererror });
+        }
       }
     }
     softdeletetransactionid = async (req:Request,res:Response,next:NextFunction)=>{
@@ -366,12 +415,16 @@ class TransactionController {
         }
         else{
             res.status(400)
-            return next(new Error(responsemessage.didnotunsubscribe))
+            throw new CustomError(responsemessage.didnotunsubscribe,400)
            
         }
         } catch (error) {
-         console.log(error)   
-         res.status(500).json(responsemessage.servererror)
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message});
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
         }
     }
     latestplan = async(req:AuthenticatedRequest,res:Response)=>{
@@ -394,12 +447,16 @@ class TransactionController {
         try {
                 const transactions = await TransactionServices.transactionhistory(userid)
                 if(!transactions){
-                    return next(new Error("No Transaction"))
+                    throw new CustomError("No Transaction",404)
                 }
                 res.status(200).json(transactions)
         } catch (error) {
-            console.log(error)
-            res.status(500).json({message:responsemessage.servererror})
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message});
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
         }
     }
     transactionhistorydetails = async (req:Request,res:Response,next:NextFunction)=>{
@@ -410,11 +467,15 @@ class TransactionController {
             }
             else{
                 res.status(400)
-                return next(new Error(responsemessage.transactionnotfound))
+                throw new CustomError(responsemessage.transactionnotfound,400)
             }
         } catch (error) {
-            console.log(error)
-            res.status(500).json({message:responsemessage.servererror})
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message});
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
         }
     }
 }
