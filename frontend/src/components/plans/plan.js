@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import './plan.css'; // Add this CSS file for styling
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Navbar, Nav, Dropdown } from "react-bootstrap";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import Cookies from "universal-cookie";
 
 function Adminplan() {
       const navigator = useNavigate()
@@ -10,7 +14,8 @@ function Adminplan() {
     const [start, setstart] = useState('');
     const [end, setend] = useState('');
     const [error, seterror] = useState('');
-
+    const [admin,setadmin] = useState('')
+    const [isMinimized, setIsMinimized] = useState(false);
     function encodeFileBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -58,8 +63,45 @@ function Adminplan() {
             seterror("Failed to add plan.");
         }
     }
+    
+    useEffect(()=>{
+        const cookie = new Cookies()
+        const jwtToken = cookie.get('token_authenication')
+        fetch('api/usermanagement/myprofile',{method:"GET",headers:{ "Authorization":`Bearer ${jwtToken}`}})
+        .then(response=> response.json())
+        .then(data=>{console.log(data)
+    setadmin(data)})
+    },[])
+
+    function toggleSidebar() {
+        setIsMinimized(!isMinimized);
+    }
 
     return (
+        <>
+        <div className="admin-page">
+            <div className={`sidebar ${isMinimized ? 'minimized' : ''}`}>
+                <Navbar bg="dark" variant="dark" expand="lg" className="flex-column sidebar-navbar">
+                    <Navbar.Brand>Admin</Navbar.Brand>
+                    <Nav className="flex-column mt-4">
+                        <Nav.Link as={Link} to="/adminplan"> Add Plans</Nav.Link>
+                        <Nav.Link as={Link} to="/users">User</Nav.Link>
+                        <Nav.Link as={Link} to="/plandetails">Plans</Nav.Link>
+                    </Nav>
+                    <Dropdown className="mt-auto dropup">
+                        <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+                            {admin.firstName||"Admin"}
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <Dropdown.Item onClick={() => { navigator('/login'); }}>Logout</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </Navbar>
+                <div className="toggle-icon" onClick={toggleSidebar}>
+                    <FontAwesomeIcon icon={isMinimized ? faChevronRight : faChevronLeft} />
+                </div>
+            </div>
+        </div>
         <div>
             {error && <p className="error-message">{error}</p>}
             <div className="adminplan-container">
@@ -122,6 +164,7 @@ function Adminplan() {
             </div>
             
         </div>
+        </>
     );
 }
 
