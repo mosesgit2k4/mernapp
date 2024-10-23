@@ -65,16 +65,13 @@ class UserController {
         try {
             const user = await UserServices.getUserByUsername(username);
             if (!user) {
-                res.status(400)
                 throw new CustomError(responsemessage.invalidusername,400)
             }
-            const passwordMatch = await compare(password, user.password as string);
-            if (passwordMatch) {
-                const payload = { _id: user._id };
-                const jwtToken = sign(payload, secret_token, { expiresIn: '1h' });
-                return res.status(200).json({ jwtToken, admin: user.isadmin });
-            } else {
-                res.status(400)
+            const jwt  = await UserServices.loginUser(password,user.password as string,user._id,user.isadmin)
+            if(jwt){
+                res.status(200).json(jwt)
+            }
+            else{
                 throw new CustomError(responsemessage.invalidpassword,400)
             }
         } catch (error) {

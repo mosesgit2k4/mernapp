@@ -1,10 +1,14 @@
-import User from '../model/usermodel';
-import bcrypt from 'bcrypt';
+import {User} from '../model/usermodel';
+import bcrypt, { compare } from 'bcrypt';
 import Address from "../model/addressModel";
 import Plan from "../model/planModel";
 import responsemessage from '../responsemessage';
 import Trans from '../model/transaction';
 import { ObjectId } from 'mongoose';
+import { UserEvents } from '../EventHandling/eventemitterhandler';
+import { secret_token } from '../config/dotenv';
+import CustomError from '../authHandler/errorhandling';
+import { sign } from 'jsonwebtoken';
 interface CreateUsers {
     firstName: string;
     lastName: string;
@@ -49,18 +53,32 @@ interface SelectedPlan{
 let transactions:object= []
 let selectedPlan: SelectedPlan|null = null
 class UserService {
+    private userEvents: UserEvents;
+
+    constructor() {
+        this.userEvents = new UserEvents();
+    }
     // Create a new user and address
     async createUser(userData: CreateUsers, addressData: CreateAddress) {
         try {
             const address = await Address.create(addressData);
             const user = await User.create({ ...userData, addressId: address._id });
+            this.userEvents.UserAdded(user)
             return user;
         } catch (err) {
             console.log(err);
             return { message: responsemessage.usercreateerror };
         }
     }
-
+    async loginUser(password:string,userpassword:string,userid:ObjectId,userisadmin:string){
+            const passworMatch = await compare(password,userpassword);
+        if(passworMatch){
+            const payload = {_id:userid};
+            const jwtToken = sign(payload,secret_token,{expiresIn:'1h'})
+            this.userEvents.Loggedin(userid.toString())
+            return {jwtToken,admin:userisadmin}
+        }
+    }
     // Get user by ID
     async getusersByid(id: string) {
         try {
