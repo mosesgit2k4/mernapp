@@ -9,10 +9,11 @@ import './user.css';
 function User() {
     const navigate = useNavigate();
     const [user, setUser] = useState('');
+    const [subscribedDetails, setSubscribedDetails] = useState('');
+    const [transactionDetails, setTransactionDetails] = useState('');
     const [isMinimized, setIsMinimized] = useState(false);
-    const [isSubscribed, setIsSubscribed] = useState(false); 
+    const [isSubscribed, setIsSubscribed] = useState(false);
     const [plansSet, setPlansSet] = useState(false);
-    const [subscriptionSet, setSubscriptionSet] = useState(false);
     const [plans, setPlans] = useState([]);
 
     function toggleSidebar() {
@@ -23,19 +24,22 @@ function User() {
         const cookies = new Cookies();
         const jwtToken = cookies.get("token_authenication");
 
+        // Check subscription status
         fetch('api/usermanagement/transaction', {
             method: "GET",
             headers: { "Authorization": `Bearer ${jwtToken}` }
         })
         .then(response => response.json())
         .then(data => {
-            if(data.message === "No Transaction found") {
-                setIsSubscribed(false);
+            if (data.message === "No Transaction found") {
+                setIsSubscribed(false); // No subscription
             } else {
-                setIsSubscribed(true);
+                setIsSubscribed(true);  // Subscription exists
+                setTransactionDetails(data);
             }
         });
 
+        // Fetch user profile
         fetch('api/usermanagement/myprofile', {
             method: "GET",
             headers: { "Authorization": `Bearer ${jwtToken}` }
@@ -45,13 +49,38 @@ function User() {
             setUser(data);
         });
 
+        // Fetch available plans
         fetch('/api/usermanagement/plans', {
             method: "GET",
         })
         .then(response => response.json())
         .then(data => setPlans(data));
+
+        // Fetch latest subscribed plan
+        fetch('api/usermanagement/latestplan', {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${jwtToken}` }
+        })
+        .then(response => response.json())
+        .then(data => setSubscribedDetails(data.plan));
         
     }, []);
+
+    function handleUnsubscription() {
+        let deleteTrans = {
+            id: transactionDetails._id
+        };
+        fetch('api/usermanagement/transactiondelete', {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(deleteTrans)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            setIsSubscribed(false); // After deletion, no subscription
+        });
+    }
 
     function subscriptionToPlan(plan) {
         fetch('api/usermanagement/plantobeselected', {
@@ -72,17 +101,15 @@ function User() {
                     <Nav className="flex-column mt-4">
                         {isSubscribed ? (
                             <Nav.Link onClick={() => { 
-                                setSubscriptionSet(true);
-                                setPlansSet(false);
+                                setPlansSet(false); 
                             }}>
                                 Subscription
                             </Nav.Link>
                         ) : (
                             <Nav.Link onClick={() => { 
                                 setPlansSet(true);
-                                setSubscriptionSet(false);
                             }}>
-                                Plan
+                                Plans
                             </Nav.Link>
                         )}
                     </Nav>
@@ -101,8 +128,9 @@ function User() {
                     <FontAwesomeIcon icon={isMinimized ? faChevronRight : faChevronLeft} />
                 </div>
             </div>
+
             <div className={`content ${isMinimized ? 'full-width' : ''}`}>
-                {plansSet && (
+                {plansSet ? (
                     <div className="container">
                         <h1>Plans</h1>
                         <div className="plans-grid">
@@ -122,8 +150,18 @@ function User() {
                             ))}
                         </div>
                     </div>
+                ) : isSubscribed ? (
+                    <div>
+                        <h1>Current Subscription</h1>
+                        <p>{subscribedDetails.name}</p>
+                        <button onClick={handleUnsubscription}>Unsubscribe</button>
+                    </div>
+                ) : (
+                    <div>
+                        <h1>No Plans Subscribed</h1>
+                        <p>You currently have no active subscription.</p>
+                    </div>
                 )}
-                {subscriptionSet && <div>Subscription Details</div>}
             </div>
         </div>
     );
