@@ -267,6 +267,10 @@ class PlanService {
 
 }
 class TransactionService {
+    private userEvents: UserEvents;
+
+    constructor() {
+        this.userEvents = new UserEvents();}
     // Create transaction
     async createtransaction(transactiondetails: { userid: string; planid: string; amount: number }) {
       try {
@@ -280,6 +284,7 @@ class TransactionService {
         }
   
         const transaction = await Trans.create(transactiondetails);
+        this.userEvents.TransactionAdded()
         return transaction;
       } catch (error) {
         console.error("Error:", error);

@@ -18,6 +18,9 @@ class UserEvents {
         this.emitter.on('AdminLoggedin',(userid:string)=>{
             console.log('Admin Logged in by ',userid)
         });
+        this.emitter.on('TransactionDone',()=>{
+            console.log("Transaction Done Successfully")
+        })
     }
 
     UserAdded(userid: string): void {
@@ -32,6 +35,9 @@ class UserEvents {
     }
     Loggedinadmin(userid:string):void{
         this.emitter.emit('AdminLoggedin',userid)
+    }
+    TransactionAdded(){
+        this.emitter.emit('TransactionDone')
     }
 }
 
