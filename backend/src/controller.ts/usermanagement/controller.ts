@@ -29,7 +29,7 @@ let transporter = nodemailer.createTransport({
 
 class UserController {
     //Register
-    createUser = async (req: Request, res: Response,next:NextFunction) => {
+    createUser = async (req: Request, res: Response) => {
         try {
             const { value, error } = PostBody.validate(req.body, { abortEarly: false })
             const { firstName, lastName, email, username, password, phonenumber, isadmin, image, country, state, city, addresses, zipcode, type } = value
@@ -59,7 +59,7 @@ class UserController {
         }
     }
     //login
-    loginUser = async (req: LoginRequest, res: any ,next:NextFunction) => {
+    loginUser = async (req: LoginRequest, res: Response) => {
         const { username, password } = req.body;
         try {
             const user = await UserServices.getUserByUsername(username);
@@ -84,27 +84,12 @@ class UserController {
     };
 
     //forgetpassword
-    forgetUser = async (req: any, res: any) => {
+    forgetUser = async (req: Request, res: Response) => {
         try {
             const { email } = req.body;
             const emailverify = await UserServices.getusersByemail(email);
             if (emailverify) {
-                let otp = Math.floor(1000 + Math.random() * 9000);
-                const mailOptions = {
-                    from: dotenv.gmail,
-                    to: `${email}`,
-                    subject: "Password reset OTP",
-                    text: `Your OTP is: ${otp}`,
-                };
-                transporter.sendMail(mailOptions, function (err, info) {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        emailstore.unshift(email);
-                        otp_store.unshift(otp.toString());
-                        res.json({ data: `OTP has been sent to ${email}` });
-                    }
-                });
+                res.json({ data: `OTP has been sent to ${email}` }).status(200)
             } else {
                 res.status(401)
                 throw new CustomError(responsemessage.invalidemail,401)

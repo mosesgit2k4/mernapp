@@ -5,7 +5,7 @@ import Plan from "../model/planModel";
 import responsemessage from '../responsemessage';
 import Trans from '../model/transaction';
 import { ObjectId } from 'mongoose';
-import { UserEvents } from '../EventHandling/eventemitterhandler';
+import { PlanEvents, TransactionEvents, UserEvents } from '../EventHandling/eventemitterhandler';
 import { secret_token } from '../config/dotenv';
 import { sign } from 'jsonwebtoken';
 interface CreateUsers {
@@ -62,7 +62,8 @@ class UserService {
         try {
             const address = await Address.create(addressData);
             const user = await User.create({ ...userData, addressId: address._id });
-            this.userEvents.UserAdded(user._id.toString())
+            const createdtime = new Date().toISOString()
+            this.userEvents.UserAdded(user._id.toString(),user.email,createdtime)
             return user;
         } catch (err) {
             console.log(err);
@@ -103,6 +104,7 @@ class UserService {
     // Get user by email
     async getusersByemail(email: string) {
         try {
+            this.userEvents.forgetpassword(email)
             return  User.findOne({ email }).lean();
         } catch (error) {
             console.log(error);
@@ -187,15 +189,15 @@ class UserService {
     }
 }
 class PlanService {
-    private userEvents: UserEvents;
+    private PlanEvents: PlanEvents;
 
     constructor() {
-        this.userEvents = new UserEvents();}
+        this.PlanEvents = new PlanEvents();}
     // Create a new plan
     async createplans(plansData: CreatePlan) {
         try {
             const plan = await Plan.create(plansData);
-            this.userEvents.emitPlanActivated(plan._id.toString())
+            this.PlanEvents.emitPlanActivated(plan._id.toString())
             return plan;
         } catch (error) {
             console.log(error);
@@ -269,10 +271,10 @@ class PlanService {
 
 }
 class TransactionService {
-    private userEvents: UserEvents;
+    private TransactionEvents: TransactionEvents;
 
     constructor() {
-        this.userEvents = new UserEvents();}
+        this.TransactionEvents = new TransactionEvents();}
     // Create transaction
     async createtransaction(transactiondetails: { userid: string; planid: string; amount: number }) {
       try {
@@ -286,7 +288,7 @@ class TransactionService {
         }
   
         const transaction = await Trans.create(transactiondetails);
-        this.userEvents.TransactionAdded()
+        this.TransactionEvents.TransactionAdded()
         return transaction;
       } catch (error) {
         console.error("Error:", error);
