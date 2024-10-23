@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction, response } from 'express';
 import { JwtPayload, verify } from 'jsonwebtoken';
 import { secret_token } from '../config/dotenv';
-import { User } from '../model/usermodel';
+import User from '../model/usermodel';
 import { Types } from 'mongoose';
 import responsemessage from '../responsemessage';
 import CustomError from './errorhandling';

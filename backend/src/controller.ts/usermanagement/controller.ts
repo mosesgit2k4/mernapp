@@ -1,11 +1,10 @@
 import { Response, Request, NextFunction } from "express";
 import { UserServices, PlanServices, TransactionServices } from "../../service/service";
 import { compare } from "bcrypt";
-import { sign } from 'jsonwebtoken'
 import { PlanBody } from "../../validation";
 import { PostBody } from "../../validation";
 import nodemailer from 'nodemailer'
-import dotenv, { secret_token } from "../../config/dotenv";
+import dotenv from "../../config/dotenv";
 import { AuthenticatedRequest } from "../../authHandler/middlewareauthHandler";
 import responsemessage from "../../responsemessage";
 import CustomError from "../../authHandler/errorhandling";

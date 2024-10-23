@@ -1,4 +1,4 @@
-import {User} from '../model/usermodel';
+import User from '../model/usermodel';
 import bcrypt, { compare } from 'bcrypt';
 import Address from "../model/addressModel";
 import Plan from "../model/planModel";
@@ -7,7 +7,6 @@ import Trans from '../model/transaction';
 import { ObjectId } from 'mongoose';
 import { UserEvents } from '../EventHandling/eventemitterhandler';
 import { secret_token } from '../config/dotenv';
-import CustomError from '../authHandler/errorhandling';
 import { sign } from 'jsonwebtoken';
 interface CreateUsers {
     firstName: string;
@@ -63,7 +62,7 @@ class UserService {
         try {
             const address = await Address.create(addressData);
             const user = await User.create({ ...userData, addressId: address._id });
-            this.userEvents.UserAdded(user)
+            this.userEvents.UserAdded(user._id.toString())
             return user;
         } catch (err) {
             console.log(err);
@@ -75,7 +74,12 @@ class UserService {
         if(passworMatch){
             const payload = {_id:userid};
             const jwtToken = sign(payload,secret_token,{expiresIn:'1h'})
-            this.userEvents.Loggedin(userid.toString())
+            if(userisadmin === "Admin"){
+                this.userEvents.Loggedinadmin(userid.toString())
+            }
+            else{
+                this.userEvents.Loggedin(userid.toString())
+            }
             return {jwtToken,admin:userisadmin}
         }
     }
@@ -181,10 +185,15 @@ class UserService {
     }
 }
 class PlanService {
+    private userEvents: UserEvents;
+
+    constructor() {
+        this.userEvents = new UserEvents();}
     // Create a new plan
     async createplans(plansData: CreatePlan) {
         try {
             const plan = await Plan.create(plansData);
+            this.userEvents.emitPlanActivated(plan._id.toString())
             return plan;
         } catch (error) {
             console.log(error);
