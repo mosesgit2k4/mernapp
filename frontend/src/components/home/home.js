@@ -4,7 +4,7 @@ import './home.css';
 
 function Homepage() {
     const navigate = useNavigate();
-    const [plans, setPlans] = useState([]);
+    const [plans, setPlans] = useState([])
 
     useEffect(() => {
         fetch('/api/usermanagement/plans', {
