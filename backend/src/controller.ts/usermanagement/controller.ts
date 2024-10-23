@@ -66,7 +66,7 @@ class UserController {
             if (!user) {
                 throw new CustomError(responsemessage.invalidusername,400)
             }
-            const jwt  = await UserServices.loginUser(password,user.password as string,user._id,user.isadmin)
+            const jwt  = await UserServices.loginUser(password,user.password as string,user._id,user.isadmin,user.firstName)
             if(jwt){
                 res.status(200).json(jwt)
             }

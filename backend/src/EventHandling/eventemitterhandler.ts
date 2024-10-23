@@ -21,6 +21,9 @@ class UserEvents {
         this.emitter.on('TransactionDone',()=>{
             console.log("Transaction Done Successfully")
         })
+        this.emitter.on('Login Time',(userid,logintime)=>{
+            console.log(`${userid}  logged in at ${logintime}`)
+        })
     }
 
     UserAdded(userid: string): void {
@@ -38,6 +41,9 @@ class UserEvents {
     }
     TransactionAdded(){
         this.emitter.emit('TransactionDone')
+    }
+    logintime(userid:string,logintime:string):void{
+        this.emitter.emit('Login Time',userid,logintime)
     }
 }
 

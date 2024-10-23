@@ -69,11 +69,13 @@ class UserService {
             return { message: responsemessage.usercreateerror };
         }
     }
-    async loginUser(password:string,userpassword:string,userid:ObjectId,userisadmin:string){
+    async loginUser(password:string,userpassword:string,userid:ObjectId,userisadmin:string,name:string){
             const passworMatch = await compare(password,userpassword);
         if(passworMatch){
             const payload = {_id:userid};
             const jwtToken = sign(payload,secret_token,{expiresIn:'1h'})
+            const loginTime =  new Date().toISOString();
+            this.userEvents.logintime(name,loginTime)
             if(userisadmin === "Admin"){
                 this.userEvents.Loggedinadmin(userid.toString())
             }
