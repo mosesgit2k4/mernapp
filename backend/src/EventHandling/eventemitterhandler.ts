@@ -9,8 +9,6 @@ let transporter = nodemailer.createTransport({
         pass: dotenv.password
     }
 });
-let otp_store: string[] = [];
-let emailstore: string[] = [];
 class UserEvents {
     private emitter: EventEmitter;
 
@@ -46,21 +44,7 @@ class UserEvents {
             console.log(`${name}  logged in at ${logintime}`)
         })
         this.emitter.on('Forgetpassword',(email)=>{
-            let otp = Math.floor(1000 + Math.random() * 9000);
-                const mailOptions = {
-                    from: dotenv.gmail,
-                    to: `${email}`,
-                    subject: "Password reset OTP",
-                    text: `Your OTP is: ${otp}`,
-                };
-                transporter.sendMail(mailOptions, function (err, info) {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        emailstore.unshift(email);
-                        otp_store.unshift(otp.toString());
-                    }
-                });
+            console.log('chumma oru email',email)
         })
     }
 

@@ -8,47 +8,7 @@ import { ObjectId } from 'mongoose';
 import { PlanEvents, TransactionEvents, UserEvents } from '../EventHandling/eventemitterhandler';
 import { secret_token } from '../config/dotenv';
 import { sign } from 'jsonwebtoken';
-interface CreateUsers {
-    firstName: string;
-    lastName: string;
-    username: string;
-    email: string;
-    password: string;
-    phonenumber: number;
-    image: string;
-    isadmin: string;
-}
-interface CreatePlan {
-    name: string;
-    start: Date;
-    end: Date;
-    image: string;
-    description: string;
-}
-interface CreateAddress {
-    country: string;
-    state: string;
-    city: string;
-    addresses: string;
-    zipcode: number;
-    type: string;
-}
-interface CreateTransaction{
-    amount:number,
-    userid:ObjectId,
-    planid:ObjectId
-
-}
-interface SelectedPlan{
-    _id:ObjectId,
-    image:String,
-    name:String,
-    description:String,
-    start:Date,
-    end:Date,
-
-
-}
+import { CreateAddress,SelectedPlan,CreatePlan,CreateUsers } from './interface';
 let transactions:object= []
 let selectedPlan: SelectedPlan|null = null
 class UserService {
@@ -334,13 +294,12 @@ class TransactionService {
     async latestplan(userid:string){
         try {
             const latestTransaction = await Trans.findOne({ userid: userid, deleted: false })
-        .sort({ createdAt: -1 })
-        .exec();
+        .sort({ createdAt: -1 });
 
     if (!latestTransaction) {
         throw new Error('No active transactions found for this user.');
     }
-    const plan = await Plan.findById(latestTransaction.planid).exec();
+    const plan = await Plan.findById(latestTransaction.planid);
     if (!plan) {
         throw new Error('Plan not found.');
     }
@@ -352,7 +311,7 @@ class TransactionService {
     }
     async transactionhistory(userid:string){
         try {
-            const transactionhistory = await Trans.find({ userid }).exec();
+            const transactionhistory = await Trans.find({ userid });
       
             if (!transactionhistory || transactionhistory.length === 0) {
               throw new Error('No Transaction found');
@@ -361,7 +320,7 @@ class TransactionService {
             
             const plandetails = await Promise.all(
               transactionhistory.map(async (transaction) => {
-                const plan = await Plan.findById(transaction.planid).lean().exec();
+                const plan = await Plan.findById(transaction.planid).lean();
                 const details = { ...transaction.toObject(), 
                     name: plan?.name || 'Unknown Plan',
                     image: plan?.image || 'No Image Available',}

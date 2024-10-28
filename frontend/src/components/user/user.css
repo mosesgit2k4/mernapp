@@ -182,3 +182,80 @@
     height: auto;
     border-radius: 8px;
   }
+  .transaction-page {
+    margin-top:200px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.transaction-page img {
+    margin: 20px 0;
+}
+
+.payment-details {
+    width: 50%;
+    margin-top: 20px;
+    float:right;
+    border-color:teal;
+    border-style:groove;
+    padding:20px
+
+
+}
+
+.payment-details form {
+    display: flex;
+    flex-direction: column;
+}
+
+.payment-details form div {
+    margin-bottom: 10px;
+}
+
+.payment-details form label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.payment-details form input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin:10px;
+}
+
+.payment-details button {
+    padding: 0.1%;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.payment-details button:hover {
+    background-color: #0056b3;
+}
+.plan-details{
+    float: left;
+    width: 30%;
+    border-style: groove;
+    margin-right: 1%;
+    margin-left: 25%;
+    padding: 4.8% ;
+}
+.buttonforpay{
+    align-items: center;
+}
+.payment-status{
+    font-size: 18px;
+}
+.payment-status.success{
+    color: green;
+}
+.payment-status.failed{
+    color:red;
+}

@@ -25,8 +25,8 @@ function ResetPassword() {
             return response.json()
         }
         ).then(data => {
-            if (data.message === "Thank you for the OTP") {
-                console.log("Thank you for the OTP")
+            if (data.message === "OTP verified") {
+                console.log("OTP verified")
                 navigator('/confirmpassword')
             }
             else {

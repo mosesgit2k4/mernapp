@@ -13,8 +13,13 @@ function User() {
     const [transactionDetails, setTransactionDetails] = useState('');
     const [isMinimized, setIsMinimized] = useState(false);
     const [isSubscribed, setIsSubscribed] = useState(false);
-    const [plansSet, setPlansSet] = useState(false);
     const [plans, setPlans] = useState([]);
+    const [selectedPlan, setSelectedPlan] = useState(null);
+    const [amount, setAmount] = useState(0);
+    const [paymentStatus, setPaymentStatus] = useState(null);
+    const [showPopup, setShowPopup] = useState(false);
+    const [activePage, setActivePage] = useState("subscription"); // New state to track active page
+    const [payToSubscribe, setPayToSubscribe] = useState(false);
 
     function toggleSidebar() {
         setIsMinimized(!isMinimized);
@@ -24,7 +29,6 @@ function User() {
         const cookies = new Cookies();
         const jwtToken = cookies.get("token_authenication");
 
-        // Check subscription status
         fetch('api/usermanagement/transaction', {
             method: "GET",
             headers: { "Authorization": `Bearer ${jwtToken}` }
@@ -32,54 +36,86 @@ function User() {
         .then(response => response.json())
         .then(data => {
             if (data.message === "No Transaction found") {
-                setIsSubscribed(false); // No subscription
+                setIsSubscribed(false);
             } else {
-                setIsSubscribed(true);  // Subscription exists
+                setIsSubscribed(true);
                 setTransactionDetails(data);
             }
         });
 
-        // Fetch user profile
+        fetch('api/usermanagement/planselected', { method: "GET", headers: { "Content-Type": "application/json" } })
+        .then(response => response.json())
+        .then(data => setSelectedPlan(data));
+
         fetch('api/usermanagement/myprofile', {
             method: "GET",
             headers: { "Authorization": `Bearer ${jwtToken}` }
         })
         .then(response => response.json())
-        .then(data => {
-            setUser(data);
-        });
+        .then(data => setUser(data));
 
-        // Fetch available plans
         fetch('/api/usermanagement/plans', {
             method: "GET",
         })
         .then(response => response.json())
         .then(data => setPlans(data));
 
-        // Fetch latest subscribed plan
         fetch('api/usermanagement/latestplan', {
             method: "GET",
             headers: { "Authorization": `Bearer ${jwtToken}` }
         })
         .then(response => response.json())
         .then(data => setSubscribedDetails(data.plan));
-        
+
     }, []);
 
-    function handleUnsubscription() {
-        let deleteTrans = {
-            id: transactionDetails._id
+    function handlePayment() {
+        const planId = selectedPlan?._id?.toString();
+        const userId = user?._id?.toString();
+
+        const transactionDetails = {
+            userId,
+            planId,
+            amount,
         };
+
+        fetch('api/usermanagement/transaction', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(transactionDetails)
+        })
+        .then(response => {
+            if (response.ok) {
+                setPaymentStatus('Payment Successful!');
+            } else {
+                setPaymentStatus('Payment Failed. Try again.');
+            }
+            setShowPopup(true);
+            setTimeout(() => {
+                setShowPopup(false);
+                if (response.ok) {
+                    setActivePage("subscription"); // Redirect to subscription page after payment
+                }
+            }, 3000);
+            return response.json();
+        })
+        .catch(() => {
+            setPaymentStatus('Payment Failed. Please check your connection.');
+            setShowPopup(true);
+            setTimeout(() => setShowPopup(false), 3000);
+        });
+    }
+
+    function handleUnsubscription() {
+        const deleteTrans = { id: transactionDetails._id };
+
         fetch('api/usermanagement/transactiondelete', {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(deleteTrans)
         })
         .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            setIsSubscribed(false); // After deletion, no subscription
-        });
+        .then(() => setIsSubscribed(false));
     }
 
     function subscriptionToPlan(plan) {
@@ -89,8 +125,10 @@ function User() {
             body: JSON.stringify(plan)
         })
         .then(response => response.json())
-        .then(data => console.log(data));
-        navigate("/subscription");
+        .then(() => setSelectedPlan(plan));
+
+        setPayToSubscribe(true);
+        setActivePage("payment");
     }
 
     return (
@@ -99,28 +137,15 @@ function User() {
                 <Navbar bg="dark" variant="dark" expand="lg" className="flex-column sidebar-navbar">
                     <Navbar.Brand>User</Navbar.Brand>
                     <Nav className="flex-column mt-4">
-                        {isSubscribed ? (
-                            <Nav.Link onClick={() => { 
-                                setPlansSet(false); 
-                            }}>
-                                Subscription
-                            </Nav.Link>
-                        ) : (
-                            <Nav.Link onClick={() => { 
-                                setPlansSet(true);
-                            }}>
-                                Plans
-                            </Nav.Link>
-                        )}
+                        <Nav.Link onClick={() => setActivePage("subscription")}>Subscription</Nav.Link>
+                        <Nav.Link onClick={() => setActivePage("plans")}>Plans</Nav.Link>
                     </Nav>
                     <Dropdown className="mt-auto dropup">
                         <Dropdown.Toggle variant="secondary" id="dropdown-basic">
                             {user.firstName || "User"}
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
-                            <Dropdown.Item onClick={() => navigate('/login')}>
-                                Logout
-                            </Dropdown.Item>
+                            <Dropdown.Item onClick={() => navigate('/login')}>Logout</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
                 </Navbar>
@@ -130,7 +155,7 @@ function User() {
             </div>
 
             <div className={`content ${isMinimized ? 'full-width' : ''}`}>
-                {plansSet ? (
+                {activePage === "plans" && (
                     <div className="container">
                         <h1>Plans</h1>
                         <div className="plans-grid">
@@ -150,16 +175,62 @@ function User() {
                             ))}
                         </div>
                     </div>
-                ) : isSubscribed ? (
+                )}
+
+                {activePage === "subscription" && (
                     <div>
-                        <h1>Current Subscription</h1>
-                        <p>{subscribedDetails.name}</p>
-                        <button onClick={handleUnsubscription}>Unsubscribe</button>
+                        {isSubscribed ? (
+                            <div>
+                                <h1>Current Subscription</h1>
+                                <p>{subscribedDetails.name}</p>
+                                <button onClick={handleUnsubscription}>Unsubscribe</button>
+                            </div>
+                        ) : (
+                            <div>
+                                <h1>No Plans Subscribed</h1>
+                                <p>You currently have no active subscription.</p>
+                            </div>
+                        )}
                     </div>
-                ) : (
-                    <div>
-                        <h1>No Plans Subscribed</h1>
-                        <p>You currently have no active subscription.</p>
+                )}
+
+                {activePage === "payment" && payToSubscribe && selectedPlan && (
+                    <div className="transaction-page">
+                        <div className="plan-details">
+                            <h2>Transaction for {selectedPlan.name}</h2>
+                            <img src={selectedPlan.image} width={100} height={100} alt={selectedPlan.name} />
+                            <p>Description: {selectedPlan.description}</p>
+                        </div>
+                        <div className="payment-details">
+                            <h3>Payment Details</h3>
+                            <form>
+                                <div>
+                                    <label htmlFor="cardNumber">Card Number:</label>
+                                    <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" />
+                                </div>
+                                <div>
+                                    <label htmlFor="expiryDate">Expiry Date:</label>
+                                    <input type="text" id="expiryDate" placeholder="MM/YY" />
+                                </div>
+                                <div>
+                                    <label htmlFor="cvv">CVV:</label>
+                                    <input type="text" id="cvv" placeholder="123" />
+                                </div>
+                                <div>
+                                    <label htmlFor="amount">Amount:</label>
+                                    <input type="text" id="amount" placeholder="Enter an amount" value={amount} onChange={e => setAmount(e.target.value)} />
+                                </div>
+                                <div className="buttonforpay">
+                                    <button type="button" onClick={handlePayment} className="btn btn-primary">Pay Now</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {showPopup && (
+                    <div className="popup">
+                        <p className={`payment-status ${paymentStatus === 'Payment Successful!' ? 'success' : 'failed'}`}>{paymentStatus}</p>
                     </div>
                 )}
             </div>

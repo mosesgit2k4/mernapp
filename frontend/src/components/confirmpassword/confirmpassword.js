@@ -22,11 +22,11 @@ function ConfirmPassword() {
             }
             return response.json()
         }).then(data => {
-            if (data.message === "Minimum 8 character is needed") { seterror("*Minimum 8 character is needed") }
-            if (data.message === "Give a strong Password") { seterror("*Give a strong Password") }
-            if (data.message === "Password does not match") { seterror("*Password does not match") }
+            if (data.message === "Password must be at least 8 characters long.") { seterror("*Password must be at least 8 characters long.") }
+            if (data.message === "Password must contain at least one uppercase letter, one lowercase letter, and one number") { seterror("*Give a strong Password") }
+            if (data.message === "New password and confirm password does not match.") { seterror("*Password does not match") }
             if (data.message === "Email not found") { seterror("*Email not found") }
-            if (data.message === "U have entered the your old password") { seterror("U have entered the your old password") }
+            if (data.message === "You have entered your old password. Please use a different password.") { seterror("You have entered your old password. Please use a different password.") }
             console.log(data)
         }
         )
