@@ -300,35 +300,7 @@ class PlanController {
         }
     }
 
-    //
-    selectplan = async(req:Request,res:Response)=>{
-        try {
-            const plan = req.body
-            const selectedplan = await PlanServices.selectplan(plan)
-            if(selectedplan){
-                res.json(selectedplan).status(200)
-            }
-            else{
-                throw new CustomError(responsemessage.plannotfound,400)}
-        } catch (error) {
-            if (error instanceof CustomError) {
-                res.status(error.statusCode).json({ message: error.message});
-            } else {
-                console.error("Error:", error);
-                res.status(500).json({ message: responsemessage.servererror });
-            }
-        }
-    }
-    selectedplan = async(req:Request,res:Response)=>{
-        try {
-            const selectplan = await PlanServices.getselectedplan()
-            if(selectplan){
-                res.status(200).json(selectplan)
-            }
-        } catch (error) {
-            res.status(500).json({message:responsemessage.servererror})
-        }
-    }
+    
 }
 
 class TransactionController {
@@ -420,41 +392,6 @@ class TransactionController {
         } catch (error) {
             console.log(error)
             res.status(500).json({message:responsemessage.servererror})
-        }
-    }
-    transactionhistory = async(req:Request,res:Response,next:NextFunction)=>{
-        const {userid} = req.body
-        try {
-                const transactions = await TransactionServices.transactionhistory(userid)
-                if(!transactions){
-                    throw new CustomError("No Transaction",404)
-                }
-                res.status(200).json(transactions)
-        } catch (error) {
-            if (error instanceof CustomError) {
-                res.status(error.statusCode).json({ message: error.message});
-            } else {
-                console.error("Error:", error);
-                res.status(500).json({ message: responsemessage.servererror });
-            }
-        }
-    }
-    transactionhistorydetails = async (req:Request,res:Response,next:NextFunction)=>{
-        try {
-            const transactiondetails = await TransactionServices.transactionhistorydetails()
-            if(transactiondetails){
-                res.status(200).json(transactiondetails)
-            }
-            else{
-                throw new CustomError(responsemessage.transactionnotfound,400)
-            }
-        } catch (error) {
-            if (error instanceof CustomError) {
-                res.status(error.statusCode).json({ message: error.message});
-            } else {
-                console.error("Error:", error);
-                res.status(500).json({ message: responsemessage.servererror });
-            }
         }
     }
 }

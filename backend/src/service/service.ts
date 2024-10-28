@@ -9,8 +9,7 @@ import { PlanEvents, TransactionEvents, UserEvents } from '../EventHandling/even
 import { secret_token } from '../config/dotenv';
 import { sign } from 'jsonwebtoken';
 import { CreateAddress,SelectedPlan,CreatePlan,CreateUsers } from './interface';
-let transactions:object= []
-let selectedPlan: SelectedPlan|null = null
+
 class UserService {
     private userEvents: UserEvents;
 
@@ -203,31 +202,6 @@ class PlanService {
             return 
         }
     }
-    async selectplan(plan:SelectedPlan){
-        try {
-        if(!plan){
-            return  responsemessage.plannotfound
-        }
-        selectedPlan = plan
-        return plan
-        } catch (error) {
-            console.log(error)
-            return responsemessage.servererror
-        }
-    }
-    async getselectedplan(){
-        try {
-            if(selectedPlan){
-                return selectedPlan
-            }
-            else{
-                throw new Error("No plan selected")
-            }
-        } catch (error) {
-            console.log(error)
-            return responsemessage.servererror
-        }
-    }
 
 }
 class TransactionService {
@@ -304,42 +278,6 @@ class TransactionService {
         throw new Error('Plan not found.');
     }
     return {plan}
-        } catch (error) {
-            console.log(error)
-            return responsemessage.servererror
-        }
-    }
-    async transactionhistory(userid:string){
-        try {
-            const transactionhistory = await Trans.find({ userid });
-      
-            if (!transactionhistory || transactionhistory.length === 0) {
-              throw new Error('No Transaction found');
-            }
-      
-            
-            const plandetails = await Promise.all(
-              transactionhistory.map(async (transaction) => {
-                const plan = await Plan.findById(transaction.planid).lean();
-                const details = { ...transaction.toObject(), 
-                    name: plan?.name || 'Unknown Plan',
-                    image: plan?.image || 'No Image Available',}
-                return details;
-              })
-            );
-      
-            transactions = plandetails; 
-            return plandetails;
-          } catch (error) {
-            console.error(error);
-            return { message: responsemessage.servererror };
-          }
-    }
-    async transactionhistorydetails(){
-        try {
-            if(transactions){
-                return transactions
-            }
         } catch (error) {
             console.log(error)
             return responsemessage.servererror

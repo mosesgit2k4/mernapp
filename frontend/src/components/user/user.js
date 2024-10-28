@@ -18,7 +18,8 @@ function User() {
     const [amount, setAmount] = useState(0);
     const [paymentStatus, setPaymentStatus] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
-    const [activePage, setActivePage] = useState("subscription"); // New state to track active page
+    const [activePage, setActivePage] = useState("subscription"); 
+
     const [payToSubscribe, setPayToSubscribe] = useState(false);
 
     function toggleSidebar() {
@@ -43,9 +44,6 @@ function User() {
             }
         });
 
-        fetch('api/usermanagement/planselected', { method: "GET", headers: { "Content-Type": "application/json" } })
-        .then(response => response.json())
-        .then(data => setSelectedPlan(data));
 
         fetch('api/usermanagement/myprofile', {
             method: "GET",
@@ -70,8 +68,8 @@ function User() {
     }, []);
 
     function handlePayment() {
-        const planId = selectedPlan?._id?.toString();
-        const userId = user?._id?.toString();
+        const planId = selectedPlan?._id.toString();
+        const userId = user?._id.toString();
 
         const transactionDetails = {
             userId,
@@ -94,7 +92,7 @@ function User() {
             setTimeout(() => {
                 setShowPopup(false);
                 if (response.ok) {
-                    setActivePage("subscription"); // Redirect to subscription page after payment
+                    setActivePage("subscription"); 
                 }
             }, 3000);
             return response.json();
@@ -119,13 +117,12 @@ function User() {
     }
 
     function subscriptionToPlan(plan) {
-        fetch('api/usermanagement/plantobeselected', {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(plan)
+        fetch('api/usermanagement/getplanselected', {
+            method: "GET",
+            headers: { "Content-Type": "application/json","Authenication":`Bearer ${jwtToken}`}
         })
         .then(response => response.json())
-        .then(() => setSelectedPlan(plan));
+        .then((data) => setSelectedPlan(data));
 
         setPayToSubscribe(true);
         setActivePage("payment");
