@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
-import './plan.css'; // Add this CSS file for styling
-import { Link, useNavigate } from "react-router-dom";
-import { Navbar, Nav, Dropdown } from "react-bootstrap";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import './plan.css'; 
+import {useNavigate } from "react-router-dom";
 import Cookies from "universal-cookie";
 
 function Adminplan() {
@@ -15,7 +12,6 @@ function Adminplan() {
     const [end, setend] = useState('');
     const [error, seterror] = useState('');
     const [admin,setadmin] = useState('')
-    const [isMinimized, setIsMinimized] = useState(false);
     function encodeFileBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -73,35 +69,9 @@ function Adminplan() {
     setadmin(data)})
     },[])
 
-    function toggleSidebar() {
-        setIsMinimized(!isMinimized);
-    }
 
     return (
         <>
-        <div className="admin-page">
-            <div className={`sidebar ${isMinimized ? 'minimized' : ''}`}>
-                <Navbar bg="dark" variant="dark" expand="lg" className="flex-column sidebar-navbar">
-                    <Navbar.Brand>Admin</Navbar.Brand>
-                    <Nav className="flex-column mt-4">
-                        <Nav.Link as={Link} to="/adminplan"> Add Plans</Nav.Link>
-                        <Nav.Link as={Link} to="/users">Users</Nav.Link>
-                        <Nav.Link as={Link} to="/plandetails">Plans</Nav.Link>
-                    </Nav>
-                    <Dropdown className="mt-auto dropup">
-                        <Dropdown.Toggle variant="secondary" id="dropdown-basic">
-                            {admin.firstName||"Admin"}
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                            <Dropdown.Item onClick={() => { navigator('/login'); }}>Logout</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                </Navbar>
-                <div className="toggle-icon" onClick={toggleSidebar}>
-                    <FontAwesomeIcon icon={isMinimized ? faChevronRight : faChevronLeft} />
-                </div>
-            </div>
-        </div>
         <div>
             {error && <p className="error-message">{error}</p>}
             <div className="adminplan-container">
