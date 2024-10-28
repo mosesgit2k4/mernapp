@@ -120,7 +120,7 @@ label {
     margin-top: 20px;
     color: red;
     text-align: center;
-    font-size: 2rem;
+    font-size: 18px;
 }
 
 @media (max-width: 768px) {

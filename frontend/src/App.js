@@ -8,7 +8,7 @@ import ConfirmPassword from './components/confirmpassword/confirmpassword';
 import Register from './components/register/register';
 import ProfilePage from './components/profilepage/profile';
 import Admin from './components/admin/admin';
-import Adminplan from './components/plans/plan';
+
 import Subscription from './components/subscription/subscription';
 import UserDetailsforadmin from './components/userdetails/users';
 import User from './components/user/user';
@@ -22,7 +22,6 @@ function App() {
           <Route path='/' element={<Navigate to='/login/' />} />
           <Route path='/login' element={<Login />} />
           <Route path='/admin' element={<Admin />} />
-          <Route path='/adminplan' element={<Adminplan />} />
           <Route path='/register' element={<Register />} />
           <Route path='/profile' element={<ProfilePage />} />
           <Route path='/forgetpassword' element={<ForgetPassword />} />
