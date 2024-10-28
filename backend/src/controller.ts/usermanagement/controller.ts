@@ -299,6 +299,25 @@ class PlanController {
             }
         }
     }
+    getplanidforselectedplan = async (req:Request,res:Response)=>{
+        try {
+            const plan= req.body
+            const selectedplan = await PlanServices.getplanidforselectedplan(plan)
+            if(selectedplan){
+                res.status(200).json(selectedplan)
+            }
+            else{
+                throw new CustomError(responsemessage.plannotfound,404)
+            }
+        } catch (error) {
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message});
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
+        }
+    }
 
     
 }
@@ -308,8 +327,7 @@ class TransactionController {
     createtransactions = async (req: Request, res: Response,next:NextFunction) => {
       try {
         const { userid, planid, amount } = req.body;
-  
-        const transaction = await TransactionServices.createtransaction({ userid, planid, amount });
+        const transaction = await TransactionServices.createtransaction({userid,planid,amount});
   
         if (!transaction) {
           throw new CustomError(responsemessage.transactionfailed,400)
@@ -335,12 +353,12 @@ class TransactionController {
             const id2 = id.toString()
             const transid = await TransactionServices.gettransactionid(id2)
             if(!transid|| transid.length === 0){
-              throw new CustomError(responsemessage.notransaction,400)
+              throw new CustomError(responsemessage.transactionnotfound,400)
             }
             const len = transid.length
             const lasttransaction = transid[len-1]
             if(!lasttransaction||!lasttransaction.planid){
-                throw new CustomError(responsemessage.invalidtransaction,400)
+                throw new CustomError(responsemessage.transactionnotfound,400)
             }
             const planid = lasttransaction.planid
             const transaction = await TransactionServices.gettransaction(id2,transid[len -1]._id.toString(),planid.toString())

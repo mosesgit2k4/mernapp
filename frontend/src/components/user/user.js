@@ -18,8 +18,7 @@ function User() {
     const [amount, setAmount] = useState(0);
     const [paymentStatus, setPaymentStatus] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
-    const [activePage, setActivePage] = useState("subscription"); 
-
+    const [activePage, setActivePage] = useState("subscription");
     const [payToSubscribe, setPayToSubscribe] = useState(false);
 
     function toggleSidebar() {
@@ -36,14 +35,13 @@ function User() {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.message === "No Transaction found") {
+            if (data.message === "Transaction not found") {
                 setIsSubscribed(false);
             } else {
                 setIsSubscribed(true);
                 setTransactionDetails(data);
             }
         });
-
 
         fetch('api/usermanagement/myprofile', {
             method: "GET",
@@ -68,12 +66,11 @@ function User() {
     }, []);
 
     function handlePayment() {
-        const planId = selectedPlan?._id.toString();
-        const userId = user?._id.toString();
-
+        const planid = selectedPlan._id.toString();
+        const userid = user?._id.toString();
         const transactionDetails = {
-            userId,
-            planId,
+            userid,
+            planid,
             amount,
         };
 
@@ -82,20 +79,32 @@ function User() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(transactionDetails)
         })
-        .then(response => {
-            if (response.ok) {
+        .then(response => response.json())
+        .then(data => {
+            if (data) {
                 setPaymentStatus('Payment Successful!');
+                setIsSubscribed(true);
+                setShowPopup(true);
+                // Refetch subscription details to display in the subscription column
+                const cookies = new Cookies();
+                const jwtToken = cookies.get("token_authenication");
+
+                fetch('api/usermanagement/latestplan', {
+                    method: "GET",
+                    headers: { "Authorization": `Bearer ${jwtToken}` }
+                })
+                .then(response => response.json())
+                .then(planData => {
+                    setSubscribedDetails(planData.plan);
+                    setActivePage("subscription"); // Switch to subscription page
+                });
+
             } else {
                 setPaymentStatus('Payment Failed. Try again.');
+                setShowPopup(true);
             }
-            setShowPopup(true);
-            setTimeout(() => {
-                setShowPopup(false);
-                if (response.ok) {
-                    setActivePage("subscription"); 
-                }
-            }, 3000);
-            return response.json();
+
+            setTimeout(() => setShowPopup(false), 3000);
         })
         .catch(() => {
             setPaymentStatus('Payment Failed. Please check your connection.');
@@ -117,13 +126,14 @@ function User() {
     }
 
     function subscriptionToPlan(plan) {
-        fetch('api/usermanagement/getplanselected', {
-            method: "GET",
-            headers: { "Content-Type": "application/json","Authenication":`Bearer ${jwtToken}`}
+        //get the plan  and set the plan id in selectedPlan
+        fetch('api/usermanagement/getplanidforselectedplan',{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body: JSON.stringify(plan)
         })
-        .then(response => response.json())
-        .then((data) => setSelectedPlan(data));
-
+        .then(response=>response.json())
+        .then(data=>setSelectedPlan(data))
         setPayToSubscribe(true);
         setActivePage("payment");
     }
@@ -173,7 +183,6 @@ function User() {
                         </div>
                     </div>
                 )}
-
                 {activePage === "subscription" && (
                     <div>
                         {isSubscribed ? (

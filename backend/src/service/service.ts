@@ -202,6 +202,18 @@ class PlanService {
             return 
         }
     }
+    async getplanidforselectedplan(plan:SelectedPlan){
+        try {
+            const plans = await Plan.findById(plan._id)
+            if(plans){
+                return plans
+            }
+            return responsemessage.plannotfound 
+        } catch (error) {
+           console.log("error:",error) 
+           return
+        }
+    }
 
 }
 class TransactionService {
@@ -213,10 +225,8 @@ class TransactionService {
     async createtransaction(transactiondetails: { userid: string; planid: string; amount: number }) {
       try {
         const { userid, planid } = transactiondetails;
-  
-        const useridverify = await User.findById(userid);
-        const planidverify = await Plan.findById(planid);
-  
+        const useridverify = await User.findById(userid)
+        const planidverify = await Plan.findById(planid)
         if (!useridverify || !planidverify) {
           return null; 
         }
@@ -271,7 +281,7 @@ class TransactionService {
         .sort({ createdAt: -1 });
 
     if (!latestTransaction) {
-        throw new Error('No active transactions found for this user.');
+        return responsemessage.transactionnot
     }
     const plan = await Plan.findById(latestTransaction.planid);
     if (!plan) {

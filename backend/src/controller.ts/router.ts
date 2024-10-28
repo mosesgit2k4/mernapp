@@ -2,6 +2,7 @@ import { Router } from "express";
 import { UserControllers, PlanControllers, TransactionControllers } from "./usermanagement/controller";
 import { upload } from "../imageupload";
 import usersSessionHandler from "../authHandler/middlewareauthHandler";
+import Plan from "../model/planModel";
 
 export const userManagementRouter: Router = Router();
 
@@ -19,7 +20,7 @@ userManagementRouter.post("/plans",upload, PlanControllers.createplan);
 userManagementRouter.get('/plans', PlanControllers.getplan);
 userManagementRouter.post('/planbyid', PlanControllers.getplanid);  
 userManagementRouter.get('/getplanselected',usersSessionHandler)
-
+userManagementRouter.post("/getplanidforselectedplan",PlanControllers.getplanidforselectedplan)
 
 
 userManagementRouter.post('/transaction', TransactionControllers.createtransactions);
