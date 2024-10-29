@@ -20,6 +20,7 @@ function Admin() {
     const [users,setuser] = useState([])
     const [viewuser,setviewusers] = useState('')
     const [transactionisfound,settransactionisfound] = useState(false)
+    const [plans,setPlans] = useState([])
 //converting add plan image to base64
     function encodeFileBase64(file) {
         return new Promise((resolve, reject) => {
@@ -94,6 +95,11 @@ function Admin() {
         }).then(data => {
             setuser(data);
         });
+        // get allplans 
+        fetch('/api/usermanagement/plans', {
+            method: "GET",
+        }).then(response => response.json())
+          .then(data => setPlans(data))
     }, []);
 //Toggleing of sidebar
     function toggleSidebar() {
@@ -105,7 +111,7 @@ function Admin() {
             userid :user._id
         }
         fetch('api/usermanagement/transactionhistory',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(userdetails)}).then(response=>response.json()).then(data=>{
-            if(data.message === "No Transaction Found"){
+            if(data.message === "Transaction not found"){
                 settransactionisfound(false)
             }
             else{setviewusers(data)
@@ -255,7 +261,22 @@ function Admin() {
 
 
                 {activePage === 'plandetails' && (
-                    <div>Plans</div>
+                   <div className="container">
+                   <h1>Plans</h1>
+                   <div className="plans-grid">
+                       {plans.map(plan => (
+                           <div key={plan.id} className="card">
+                               <div className="content">
+                                   <div className="title">{plan.name}</div>
+                                   <div className="price">
+                                       <img src={plan.image} width={100} height={100} alt={plan.name} />
+                                   </div>
+                                   <div className="description">{plan.description}</div>
+                               </div>
+                           </div>
+                       ))}
+                   </div>
+                   </div>
                 )}
 
                 {activePage === 'admindetails' && (

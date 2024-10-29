@@ -10,7 +10,6 @@ import ProfilePage from './components/profilepage/profile';
 import Admin from './components/admin/admin';
 import Subscription from './components/subscription/subscription';
 import User from './components/user/user';
-import Plandetails from './components/plandetailsforadmin/plandetails';
 function App() {
   return (
     <div className='App'>
