@@ -8,11 +8,8 @@ import ConfirmPassword from './components/confirmpassword/confirmpassword';
 import Register from './components/register/register';
 import ProfilePage from './components/profilepage/profile';
 import Admin from './components/admin/admin';
-
 import Subscription from './components/subscription/subscription';
-import UserDetailsforadmin from './components/userdetails/users';
 import User from './components/user/user';
-import ViewDetails from './components/viewdetails/viewdetails';
 import Plandetails from './components/plandetailsforadmin/plandetails';
 function App() {
   return (
@@ -28,9 +25,7 @@ function App() {
           <Route path='/resetpassword' element={<ResetPassword />} />
           <Route path='/confirmpassword' element={<ConfirmPassword />} />
           <Route path='/subscription' element={<Subscription />} />
-          <Route path='/users' element = {<UserDetailsforadmin/>}/>
           <Route path='/user' element = {<User/>}/>
-          <Route path='/viewdetails' element = {<ViewDetails/>}/>
           <Route path='/plandetails' element = {<Plandetails/>}/>
         </Routes>
       </BrowserRouter>

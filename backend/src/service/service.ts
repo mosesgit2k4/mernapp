@@ -293,6 +293,30 @@ class TransactionService {
             return responsemessage.servererror
         }
     }
+    async transactionhistory(userid:string){
+        try {
+            const transactionhistory = await Trans.find({ userid }).exec();
+      
+            if (!transactionhistory || transactionhistory.length === 0) {
+              return 'No Transaction found'
+            }
+      
+            
+            const plandetails = await Promise.all(
+              transactionhistory.map(async (transaction) => {
+                const plan = await Plan.findById(transaction.planid).lean().exec();
+                const details = { ...transaction.toObject(), 
+                    name: plan?.name || 'Unknown Plan',
+                    image: plan?.image || 'No Image Available',}
+                return details;
+              })
+            ); 
+            return plandetails;
+          } catch (error) {
+            console.error(error);
+            return { message: responsemessage.servererror };
+          }
+    }
   }
   
 export const UserServices = new UserService();

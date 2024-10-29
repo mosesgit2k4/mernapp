@@ -27,3 +27,4 @@ userManagementRouter.post('/transaction', TransactionControllers.createtransacti
 userManagementRouter.get('/transaction',usersSessionHandler, TransactionControllers.getransactionbyid);
 userManagementRouter.delete('/transactiondelete',TransactionControllers.softdeletetransactionid)
 userManagementRouter.get('/latestplan',usersSessionHandler,TransactionControllers.latestplan)
+userManagementRouter.post('/transactionhistory',TransactionControllers.transactionhistory)

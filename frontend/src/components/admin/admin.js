@@ -17,7 +17,10 @@ function Admin() {
     const [start, setStart] = useState('');
     const [end, setEnd] = useState('');
     const [error, setError] = useState('');
-
+    const [users,setuser] = useState([])
+    const [viewuser,setviewusers] = useState('')
+    const [transactionisfound,settransactionisfound] = useState(false)
+//converting add plan image to base64
     function encodeFileBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -26,7 +29,7 @@ function Admin() {
             reader.onerror = (error) => reject(error);
         });
     }
-
+    //add plan submit button creates the plan
     async function handleAddingOfPlan(e) {
         e.preventDefault();
 
@@ -73,6 +76,7 @@ function Admin() {
     }
 
     useEffect(() => {
+        //get the admin details which is logged in
         const cookie = new Cookies();
         const jwtToken = cookie.get('token_authenication');
         fetch('api/usermanagement/myprofile', {
@@ -81,10 +85,34 @@ function Admin() {
         })
         .then(response => response.json())
         .then(data => setAdmin(data));
-    }, []);
 
+        //get all users for veiwing user details at admin page
+        fetch('api/usermanagement/users', {
+            method: "GET"
+        }).then(response => {
+            return response.json();
+        }).then(data => {
+            setuser(data);
+        });
+    }, []);
+//Toggleing of sidebar
     function toggleSidebar() {
         setIsMinimized(!isMinimized);
+    }
+    //View Button function
+    function handleview(user){
+        let userdetails = {
+            userid :user._id
+        }
+        fetch('api/usermanagement/transactionhistory',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(userdetails)}).then(response=>response.json()).then(data=>{
+            if(data.message === "No Transaction Found"){
+                settransactionisfound(false)
+            }
+            else{setviewusers(data)
+                settransactionisfound(true)
+            }
+            })
+        setActivePage('viewdetails')
     }
 
     return (
@@ -176,8 +204,55 @@ function Admin() {
                 )}
 
                 {activePage === 'userdetails' && (
-                    <div>User</div>
+                    <div className="container">
+                    <h1>Users</h1>
+                    <div className="plans-grid">
+                        {users.map(user => (
+                            <div key={user.id} className="card">
+                                <div className="content">
+                                    <div className="title">{user.firstName}</div>
+                                    <div className="title">{user.lastName}</div>
+                                    <div className="title">{user.email}</div>
+                                    <div className="price">
+                                        <img src={user.image} width={150} height={100} alt={user.name} />
+                                    </div>
+                                    <div className="mt-5 ml-3">
+                                        <button onClick={()=>handleview(user)} className="btn btn-primary">View</button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
                 )}
+
+
+
+                {activePage === 'viewdetails' &&(
+                    <>
+                    {transactionisfound ? (
+                        <div className="container">
+                                    <h1>Transaction </h1>
+                                    <div className="plans-grid">
+                                        {viewuser.map(user => (
+                                            <div key={user.id} className="card">
+                                                <div className="content">
+                                                    <div className="title">{user.name}</div>
+                                                    <div>
+                                                        <img src={user.image} alt={user.name}/>
+                                                    </div>
+                                                    <div>{user.amount}</div>
+                                                    {user.deleted ? <div>CANCELLED</div>:<div>ACTIVE</div>}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                        </div>):
+                        (<div>No Plans for this User</div>)}
+                    </>
+                    )}
+
+
 
                 {activePage === 'plandetails' && (
                     <div>Plans</div>

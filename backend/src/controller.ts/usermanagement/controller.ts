@@ -412,6 +412,26 @@ class TransactionController {
             res.status(500).json({message:responsemessage.servererror})
         }
     }
+    transactionhistory = async(req:Request,res:Response)=>{
+        const {userid} = req.body
+        try{
+              const transact = await TransactionServices.transactionhistory(userid)  
+                if(transact === "No Transaction found"){
+                    throw new CustomError(responsemessage.transactionnotfound,404)}
+                else{
+                    res.status(200).json(transact)
+                }
+                
+            } 
+         catch (error) {
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message});
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
+        }
+    }
 }
 export const UserControllers = new UserController()
 export const PlanControllers = new PlanController()
