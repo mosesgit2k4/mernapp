@@ -39,11 +39,16 @@ class UserService {
             const jwtToken = sign(payload,secret_token,{expiresIn:'1h'})
             const loginTime =  new Date().toISOString();
             this.userEvents.logintime(name,loginTime)
+            const admins = await UserServices.getadmins()
             if(userisadmin === "Admin"){
                 this.userEvents.Loggedinadmin(userid.toString())
             }
             else{
                 this.userEvents.Loggedin(userid.toString())
+                if(admins){
+                    this.userEvents.SendAdmin(userid.toString(),admins.toString())
+                }
+                
             }
             return {jwtToken,admin:userisadmin}
         }
@@ -148,6 +153,13 @@ class UserService {
             return 'No Users Till Now'
         }
         return users
+    }
+    async getadmins(){
+        const admin = await User.find({isadmin:'Admin'}).select('email').lean()
+        if(!admin){
+            return {message:"NO Admin Till Now"}
+        }
+        return admin.map(admins => admins.email);
     }
 }
 class PlanService {

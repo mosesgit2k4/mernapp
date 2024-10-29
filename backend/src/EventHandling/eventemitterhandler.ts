@@ -2,6 +2,7 @@ import EventEmitter from 'events';
 import dotenv from '../config/dotenv';
 import nodemailer from 'nodemailer'
 import { htmlcontent } from '../config/html';
+import User from '../model/usermodel';
 let transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -9,61 +10,108 @@ let transporter = nodemailer.createTransport({
         pass: dotenv.password
     }
 });
+
+
 class UserEvents {
     private emitter: EventEmitter;
 
     constructor() {
         this.emitter = new EventEmitter();
 
-        this.emitter.on('userAdded', (userid: string,email:string,createdtime) => {
+        // Event listeners
+        this.emitter.on('userAdded', (userid: string, email: string, createdtime: string) => {
             const message = {
                 from: dotenv.gmail,
-                to: `${email}`,
+                to: email,
                 subject: "Congrats on Registering",
-                html:htmlcontent
-            }
+                html: htmlcontent
+            };
             transporter.sendMail(message, function (err, info) {
                 if (err) {
-                    console.log(err)
+                    console.log(err);
+                } else {
+                    console.log(info.response);
                 }
-                else {
-                    console.log(info.response)
-                }
-            })
-            console.log("User was created at ",createdtime)
+            });
+            console.log("User was created at ", createdtime);
             console.log('New user added for ', userid);
         });
 
-        this.emitter.on('UserLoggedin', (userid:string) => {
-            console.log('User Logged in by ',userid);
+        this.emitter.on('UserLoggedin', (userid: string) => {
+            console.log('User Logged in by ', userid);
         });
-        this.emitter.on('AdminLoggedin',(userid:string)=>{
-            console.log('Admin Logged in by ',userid)
+
+        this.emitter.on('AdminLoggedin', (userid: string) => {
+            console.log('Admin Logged in by ', userid);
         });
-        this.emitter.on('Login Time',(name,logintime)=>{
-            console.log(`${name}  logged in at ${logintime}`)
-        })
-        this.emitter.on('Forgetpassword',(email)=>{
-            console.log('chumma oru email',email)
-        })
+
+        this.emitter.on('Login Time', (name: string, logintime: string) => {
+            console.log(`${name} logged in at ${logintime}`);
+        });
+
+        this.emitter.on('Forgetpassword', (email: string) => {
+            console.log(email, ' has forgotten their password');
+        });
+
+        this.emitter.on('Sendadminnotification', async (userid: string,admins :string) => {
+            if (admins === null) {
+                console.log("No admin emails found for notification.");
+                return;
+            }
+            const adminMessage = {
+                from: dotenv.gmail,
+                subject: "User Login Notification",
+                text: `User with ID: ${userid} has just logged in.`
+            };
+            const adminarr = admins.split(',')
+            adminarr.forEach(email => {
+                transporter.sendMail({ ...adminMessage, to: email }, (err, info) => {
+                    if (err) {
+                        console.log(`Failed to notify admin at ${email}: `, err);
+                    } else {
+                        console.log(`Admin at ${email} notified: `, info.response);
+                    }
+                });
+            });
+        });
     }
 
-    UserAdded(userid: string,email:string,createdtime:string): void {
-        this.emitter.emit('userAdded', userid,email,createdtime);
+    // Fetch admin emails from the database
+    private async getAdminEmails(): Promise<string[]> {
+        try {
+            const admins = await User.find({ isadmin: 'admin' }, 'email');
+            return admins.map(admin => admin.email);
+        } catch (error) {
+            console.error("Error fetching admin emails: ", error);
+            return [];
+        }
     }
-    forgetpassword(email:string){
-        this.emitter.emit('Forgetpassword',email)
+
+    UserAdded(userid: string, email: string, createdtime: string): void {
+        this.emitter.emit('userAdded', userid, email, createdtime);
     }
-    Loggedin(userid:string): void {
-        this.emitter.emit('UserLoggedin',userid);
+
+    forgetpassword(email: string) {
+        this.emitter.emit('Forgetpassword', email);
     }
-    Loggedinadmin(userid:string):void{
-        this.emitter.emit('AdminLoggedin',userid)
+
+    Loggedin(userid: string): void {
+        this.emitter.emit('UserLoggedin', userid);
     }
-    logintime(name:string,logintime:string):void{
-        this.emitter.emit('Login Time',name,logintime)
+
+    Loggedinadmin(userid: string): void {
+        this.emitter.emit('AdminLoggedin', userid);
+    }
+
+    logintime(name: string, logintime: string): void {
+        this.emitter.emit('Login Time', name, logintime);
+    }
+
+    SendAdmin(userid: string,admins:string): void {
+        this.emitter.emit('Sendadminnotification', userid,admins);
     }
 }
+
 
 class PlanEvents{
     private  emitplan:EventEmitter;
