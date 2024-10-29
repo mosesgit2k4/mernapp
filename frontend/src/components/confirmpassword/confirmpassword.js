@@ -1,13 +1,16 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function ConfirmPassword() {
     const navigator = useNavigate()
     const [newpassword, setnewpassword] = useState('')
     const [confirmpassword, setconfirmpassword] = useState('')
     const [error, seterror] = useState('')
+    const location = useLocation()
+    const email = location.state?.email
     function handleSubmit(e) {
         let userpassword = {
+            email:email,
             newpassword: newpassword,
             confirmpassword: confirmpassword
         }

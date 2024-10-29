@@ -1,19 +1,23 @@
 
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import './resetpassword.css'
 function ResetPassword() {
+    const location = useLocation()
     const navigator = useNavigate()
     const [otp, setotp] = useState('')
     const [error, seterror] = useState('')
     const [count, setcount] = useState(0)
+    const email = location.state?.email
     useEffect(() => {
         if (count === 3) {
             navigator('/forgetpassword')
         }
     })
     function handleSubmit(e) {
+        console.log(email)
         let otpdetails = {
+            email:email,
             otp: otp
         }
         e.preventDefault()
@@ -27,7 +31,7 @@ function ResetPassword() {
         ).then(data => {
             if (data.message === "OTP verified") {
                 console.log("OTP verified")
-                navigator('/confirmpassword')
+                navigator('/confirmpassword',{ state: { email: email }})
             }
             else {
                 seterror("Give a correct OTP")

@@ -19,7 +19,7 @@ function ForgetPassword() {
                 setData("*Give a correct Email")
             }
             else {
-                navigator('/resetpassword')
+                navigator('/resetpassword',{ state: { email: email }})
             }
             return response.json()
         }).then(data => console.log(data))
