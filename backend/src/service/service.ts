@@ -3,12 +3,14 @@ import bcrypt, { compare } from 'bcrypt';
 import Address from "../model/addressModel";
 import Plan from "../model/planModel";
 import responsemessage from '../responsemessage';
-import Trans from '../model/transaction';
+import Transaction from '../model/transaction';
 import { ObjectId } from 'mongoose';
 import { PlanEvents, TransactionEvents, UserEvents } from '../EventHandling/eventemitterhandler';
 import { secret_token } from '../config/dotenv';
 import { sign } from 'jsonwebtoken';
 import { CreateAddress,SelectedPlan,CreatePlan,CreateUsers } from './interface';
+
+
 
 class UserService {
     private userEvents: UserEvents;
@@ -29,6 +31,7 @@ class UserService {
             return { message: responsemessage.usercreateerror };
         }
     }
+    //login user
     async loginUser(password:string,userpassword:string,userid:ObjectId,userisadmin:string,name:string){
             const passworMatch = await compare(password,userpassword);
         if(passworMatch){
@@ -231,7 +234,7 @@ class TransactionService {
           return null; 
         }
   
-        const transaction = await Trans.create(transactiondetails);
+        const transaction = await Transaction.create(transactiondetails);
         this.TransactionEvents.TransactionAdded()
         return transaction;
       } catch (error) {
@@ -243,7 +246,7 @@ class TransactionService {
     // Get transaction by ID
     async gettransaction(userid:string,transid:string,planid:string){
         try {
-            const user = await Trans.findOne({userid:userid,_id:transid,planid:planid}).lean()
+            const user = await Transaction.findOne({userid:userid,_id:transid,planid:planid}).lean()
            if(user){
             return user
            }
@@ -255,7 +258,7 @@ class TransactionService {
     }
     async gettransactionid(userid:string){
         try {
-            const transaction  = await Trans.find({userid:userid,deleted:false}).lean()
+            const transaction  = await Transaction.find({userid:userid,deleted:false}).lean()
             if(transaction){
                 return transaction
             }
@@ -269,7 +272,7 @@ class TransactionService {
     }
     async softdeletetransactionid(id:string){
         try {
-            return await Trans.findByIdAndUpdate(id,{deleted:true})
+            return await Transaction.findByIdAndUpdate(id,{deleted:true})
         } catch (error) {
             console.log(error)
             return null
@@ -277,7 +280,7 @@ class TransactionService {
     }
     async latestplan(userid:string){
         try {
-            const latestTransaction = await Trans.findOne({ userid: userid, deleted: false })
+            const latestTransaction = await Transaction.findOne({ userid: userid, deleted: false })
         .sort({ createdAt: -1 });
 
     if (!latestTransaction) {
@@ -295,7 +298,7 @@ class TransactionService {
     }
     async transactionhistory(userid:string){
         try {
-            const transactionhistory = await Trans.find({ userid }).exec();
+            const transactionhistory = await Transaction.find({ userid });
       
             if (!transactionhistory || transactionhistory.length === 0) {
               return 'No Transaction found'
@@ -304,7 +307,7 @@ class TransactionService {
             
             const plandetails = await Promise.all(
               transactionhistory.map(async (transaction) => {
-                const plan = await Plan.findById(transaction.planid).lean().exec();
+                const plan = await Plan.findById(transaction.planid).lean();
                 const details = { ...transaction.toObject(), 
                     name: plan?.name || 'Unknown Plan',
                     image: plan?.image || 'No Image Available',}
@@ -317,7 +320,7 @@ class TransactionService {
             return { message: responsemessage.servererror };
           }
     }
-  }
+}
   
 export const UserServices = new UserService();
 export const PlanServices = new PlanService()

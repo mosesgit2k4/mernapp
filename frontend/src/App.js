@@ -25,7 +25,6 @@ function App() {
           <Route path='/confirmpassword' element={<ConfirmPassword />} />
           <Route path='/subscription' element={<Subscription />} />
           <Route path='/user' element = {<User/>}/>
-          <Route path='/plandetails' element = {<Plandetails/>}/>
         </Routes>
       </BrowserRouter>
     </div>
