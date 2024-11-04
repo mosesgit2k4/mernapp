@@ -21,6 +21,7 @@ function Admin() {
     const [viewuser,setviewusers] = useState('')
     const [transactionisfound,settransactionisfound] = useState(false)
     const [plans,setPlans] = useState([])
+    const[amount,setamount] = useState('')
 //converting add plan image to base64
     function encodeFileBase64(file) {
         return new Promise((resolve, reject) => {
@@ -46,7 +47,8 @@ function Admin() {
                 image: base64Image,
                 description: description,
                 start: start,
-                end: end
+                end: end,
+                amount:amount
             };
 
             fetch('api/usermanagement/plans', {
@@ -64,6 +66,7 @@ function Admin() {
                         setDescription('');
                         setStart('');
                         setEnd('');
+                        setamount('')
                         setTimeout(() => {
                             setError('Plan Added Successfully')
                             setActivePage('admindetails');
@@ -201,6 +204,16 @@ function Admin() {
                                         className="form-input"
                                     />
                                 </div>
+                                <div className="form-group">
+                                    <label htmlFor="amount">Amount:</label>
+                                    <input 
+                                        value={amount}
+                                        id="amount"
+                                        type="number"
+                                        onChange={e => setamount(e.target.value)} 
+                                        className="form-input"
+                                    />
+                                </div>
                                 <div>
                                     <button type="submit" className="submit-btn">Add Plan</button>
                                 </div>
@@ -234,7 +247,7 @@ function Admin() {
 
 
 
-                {activePage === 'viewdetails' &&(
+                {activePage === 'viewdetails' && (
                     <>
                     {transactionisfound ? (
                         <div className="container">

@@ -311,7 +311,7 @@ class TransactionController {
     // Create transaction
     createtransactions = async (req: Request, res: Response,next:NextFunction) => {
       try {
-        const { userid, planid, amount } = req.body;
+        const { userid, planid,amount} = req.body;
         const transaction = await TransactionServices.createtransaction({userid,planid,amount});
   
         if (!transaction) {

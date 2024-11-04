@@ -75,7 +75,7 @@ class UserEvents {
             });
         });
     }
-
+    
     // Fetch admin emails from the database
     private async getAdminEmails(): Promise<string[]> {
         try {

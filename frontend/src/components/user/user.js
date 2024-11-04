@@ -15,11 +15,12 @@ function User() {
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [plans, setPlans] = useState([]);
     const [selectedPlan, setSelectedPlan] = useState(null);
-    const [amount, setAmount] = useState(0);
     const [paymentStatus, setPaymentStatus] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
     const [activePage, setActivePage] = useState("subscription");
     const [payToSubscribe, setPayToSubscribe] = useState(false);
+    const [cvv, setcvv] = useState('');
+    const [cvvverified, setcvvverified] = useState(false);
 
     function toggleSidebar() {
         setIsMinimized(!isMinimized);
@@ -66,12 +67,26 @@ function User() {
     }, []);
 
     function handlePayment() {
-        const planid = selectedPlan._id.toString();
+        const planid = selectedPlan?._id.toString();
         const userid = user?._id.toString();
+        
+        if (cvv !== "123") {
+            setcvvverified(true);
+            
+            // Hide the message after 3 seconds
+            setTimeout(() => {
+                setcvvverified(false);
+            }, 3000);
+            
+            return;
+        }
+
+        setcvvverified(false); // Reset if CVV is correct
+
         const transactionDetails = {
             userid,
             planid,
-            amount,
+            amount:selectedPlan.amount
         };
 
         fetch('api/usermanagement/transaction', {
@@ -85,7 +100,7 @@ function User() {
                 setPaymentStatus('Payment Successful!');
                 setIsSubscribed(true);
                 setShowPopup(true);
-                // Refetch subscription details to display in the subscription column
+                
                 const cookies = new Cookies();
                 const jwtToken = cookies.get("token_authenication");
 
@@ -96,9 +111,8 @@ function User() {
                 .then(response => response.json())
                 .then(planData => {
                     setSubscribedDetails(planData.plan);
-                    setActivePage("subscription"); // Switch to subscription page
+                    setActivePage("userdashboard"); 
                 });
-
             } else {
                 setPaymentStatus('Payment Failed. Try again.');
                 setShowPopup(true);
@@ -122,18 +136,20 @@ function User() {
             body: JSON.stringify(deleteTrans)
         })
         .then(response => response.json())
-        .then(() => setIsSubscribed(false));
+        .then(() => {
+            setActivePage('userdashboard')
+            setIsSubscribed(false)});
     }
 
     function subscriptionToPlan(plan) {
-        //get the plan  and set the plan id in selectedPlan
-        fetch('api/usermanagement/getplanidforselectedplan',{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
+        fetch('api/usermanagement/getplanidforselectedplan', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(plan)
         })
-        .then(response=>response.json())
-        .then(data=>setSelectedPlan(data))
+        .then(response => response.json())
+        .then(data => setSelectedPlan(data));
+        
         setPayToSubscribe(true);
         setActivePage("payment");
     }
@@ -145,7 +161,7 @@ function User() {
                     <Navbar.Brand>User</Navbar.Brand>
                     <Nav className="flex-column mt-4">
                         <Nav.Link onClick={() => setActivePage("subscription")}>Subscription</Nav.Link>
-                        <Nav.Link onClick={() => setActivePage("plans")}>Plans</Nav.Link>
+                        <Nav.Link onClick={() => !isSubscribed && setActivePage("plans")}>Plans</Nav.Link> {/* Disabled if subscribed */}
                     </Nav>
                     <Dropdown className="mt-auto dropup">
                         <Dropdown.Toggle variant="secondary" id="dropdown-basic">
@@ -162,7 +178,7 @@ function User() {
             </div>
 
             <div className={`content ${isMinimized ? 'full-width' : ''}`}>
-                {activePage === "plans" && (
+                {activePage === "plans" && !isSubscribed && ( /* Only show if not subscribed */
                     <div className="container">
                         <h1>Plans</h1>
                         <div className="plans-grid">
@@ -183,13 +199,15 @@ function User() {
                         </div>
                     </div>
                 )}
+                
                 {activePage === "subscription" && (
                     <div>
                         {isSubscribed ? (
                             <div>
                                 <h1>Current Subscription</h1>
                                 <p>{subscribedDetails.name}</p>
-                                <button onClick={handleUnsubscription}>Unsubscribe</button>
+                                <p>Last Recharge: ₹{subscribedDetails.amount}</p>
+                                <button className = 'btn btn-primary'onClick={handleUnsubscription}>Unsubscribe</button>
                             </div>
                         ) : (
                             <div>
@@ -220,20 +238,24 @@ function User() {
                                 </div>
                                 <div>
                                     <label htmlFor="cvv">CVV:</label>
-                                    <input type="text" id="cvv" placeholder="123" />
+                                    <input type="text" id="cvv" placeholder="123" value={cvv} onChange={e => setcvv(e.target.value)} />
                                 </div>
                                 <div>
-                                    <label htmlFor="amount">Amount:</label>
-                                    <input type="text" id="amount" placeholder="Enter an amount" value={amount} onChange={e => setAmount(e.target.value)} />
+                                   <label htmlFor="amount">Amount:</label>
+                                   <input type="number" id="amount" value={selectedPlan.amount}/>
                                 </div>
                                 <div className="buttonforpay">
                                     <button type="button" onClick={handlePayment} className="btn btn-primary">Pay Now</button>
                                 </div>
                             </form>
+                            {cvvverified && <p>Give a correct number for CVV</p>}
                         </div>
                     </div>
                 )}
-
+                {activePage === "userdashboard" && (
+                    <div>User Dashboard</div>
+                )
+                }
                 {showPopup && (
                     <div className="popup">
                         <p className={`payment-status ${paymentStatus === 'Payment Successful!' ? 'success' : 'failed'}`}>{paymentStatus}</p>

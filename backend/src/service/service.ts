@@ -237,7 +237,7 @@ class TransactionService {
     constructor() {
         this.TransactionEvents = new TransactionEvents();}
     // Create transaction
-    async createtransaction(transactiondetails: { userid: string; planid: string; amount: number }) {
+    async createtransaction(transactiondetails: { userid: string; planid: string; amount:number;}) {
       try {
         const { userid, planid } = transactiondetails;
         const useridverify = await User.findById(userid)
