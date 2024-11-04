@@ -252,20 +252,26 @@ function Admin() {
                     {transactionisfound ? (
                         <div className="container">
                                     <h1>Transaction </h1>
-                                    <div className="plans-grid">
-                                        {viewuser.map(user => (
-                                            <div key={user.id} className="card">
-                                                <div className="content">
-                                                    <div className="title">{user.name}</div>
-                                                    <div>
-                                                        <img src={user.image} alt={user.name}/>
-                                                    </div>
-                                                    <div>{user.amount}</div>
-                                                    {user.deleted ? <div>CANCELLED</div>:<div>ACTIVE</div>}
+                                    {viewuser.map(user =>(
+                                        <div className="cardfortransactionhistory">
+                                            <div className="alignmentsinsidecard" >
+                                                <div>
+                                                    <h1>{user.name}</h1>
                                                 </div>
+                                                <div>
+                                               <p>{user.description}</p>
                                             </div>
-                                        ))}
-                                    </div>
+                                            <div>
+                                            {user.deleted? <div className="cancelledoractive">
+                                                <button className="btn btn-danger cancelbtn">Cancelled</button></div>:<div className="cancelledoractive">
+                                                    <button className="btn btn-success successbtn">Active</button>
+                                                    </div>}
+                                            </div>
+                                            </div>
+                                            
+                                        </div>
+                                    ))
+                                    }
                         </div>):
                         (<div>No Plans for this User</div>)}
                     </>

@@ -322,7 +322,7 @@ class TransactionService {
                 const plan = await Plan.findById(transaction.planid).lean();
                 const details = { ...transaction.toObject(), 
                     name: plan?.name || 'Unknown Plan',
-                    image: plan?.image || 'No Image Available',}
+                    description:plan?.description}
                 return details;
               })
             ); 

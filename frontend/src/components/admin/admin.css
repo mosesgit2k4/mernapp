@@ -151,3 +151,33 @@ textarea {
     font-size: 1rem;
     line-height: 1.5;
 }
+.cardfortransactionhistory{
+    margin-bottom: 15px;
+    border-color: black;
+    border-style:solid;
+    box-shadow: 0 4px 8px ;
+}
+.cancelledoractive{
+    padding-bottom: 20px;
+    padding-right: 20px;
+    align-items: center;
+}
+.alignmentsinsidecard{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-top:15px ;
+    padding-left:10px ;
+
+}
+
+.cancelbtn:hover{
+    background-color:white;
+    color:red
+
+}
+.successbtn:hover{
+    background-color: white;
+    color:green
+}
