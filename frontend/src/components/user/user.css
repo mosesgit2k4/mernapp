@@ -228,17 +228,12 @@
 }
 
 .payment-details button {
-    padding: 0.1%;
-    background-color: #007bff;
     color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
 }
 
-.payment-details button:hover {
-    background-color: #0056b3;
-}
 .plan-details{
     float: left;
     width: 30%;

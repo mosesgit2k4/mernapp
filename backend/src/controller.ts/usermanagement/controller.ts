@@ -309,25 +309,31 @@ class PlanController {
 //Transaction Controller
 class TransactionController {
     // Create transaction
-    createtransactions = async (req: Request, res: Response,next:NextFunction) => {
-      try {
-        const { userid, planid,amount} = req.body;
-        const transaction = await TransactionServices.createtransaction({userid,planid,amount});
-  
-        if (!transaction) {
-          throw new CustomError(responsemessage.transactionfailed,400)
+    createtransactions = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { userid, planid, amount, cvv } = req.body;
+            const transaction = await TransactionServices.createtransaction({ userid, planid, amount, cvv });
+    
+            if (transaction === "Give a correct CVV") {
+                res.status(200).json({message:responsemessage.givecorrectcvv})
+                return
+            }
+    
+            if (!transaction) {
+                throw new CustomError(responsemessage.transactionfailed, 400);
+            }
+    
+            res.status(200).json(transaction);
+        } catch (error) {
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message });
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
         }
-  
-        res.status(200).json(transaction);
-      } catch (error) {
-        if (error instanceof CustomError) {
-            res.status(error.statusCode).json({ message: error.message});
-        } else {
-            console.error("Error:", error);
-            res.status(500).json({ message: responsemessage.servererror });
-        }
-      }
     };
+    
   
     // Get transaction by ID
     getransactionbyid = async (req: AuthenticatedRequest, res: Response,next:NextFunction) => {

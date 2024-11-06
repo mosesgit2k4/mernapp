@@ -20,7 +20,6 @@ function User() {
     const [activePage, setActivePage] = useState("subscription");
     const [payToSubscribe, setPayToSubscribe] = useState(false);
     const [cvv, setcvv] = useState('');
-    const [cvvverified, setcvvverified] = useState(false);
 
     function toggleSidebar() {
         setIsMinimized(!isMinimized);
@@ -69,26 +68,14 @@ function User() {
     function handlePayment() {
         const planid = selectedPlan?._id.toString();
         const userid = user?._id.toString();
-        
-        if (cvv !== "123") {
-            setcvvverified(true);
-            
-            // Hide the message after 3 seconds
-            setTimeout(() => {
-                setcvvverified(false);
-            }, 3000);
-            
-            return;
-        }
-
-        setcvvverified(false); // Reset if CVV is correct
-
+    
         const transactionDetails = {
             userid,
             planid,
-            amount:selectedPlan.amount
+            amount: selectedPlan.amount,
+            cvv: cvv
         };
-
+    
         fetch('api/usermanagement/transaction', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -96,14 +83,19 @@ function User() {
         })
         .then(response => response.json())
         .then(data => {
-            if (data) {
+            if (data.message === "Give a correct CVV") {
+                // Show "Incorrect CVV" message for 3 seconds
+                setPaymentStatus('Incorrect CVV. Please try again.');
+                setShowPopup(true);
+                setTimeout(() => setShowPopup(false), 3000);
+            } else if (data) {
                 setPaymentStatus('Payment Successful!');
                 setIsSubscribed(true);
                 setShowPopup(true);
-                
+                setTimeout(() => setShowPopup(false), 3000);
                 const cookies = new Cookies();
                 const jwtToken = cookies.get("token_authenication");
-
+    
                 fetch('api/usermanagement/latestplan', {
                     method: "GET",
                     headers: { "Authorization": `Bearer ${jwtToken}` }
@@ -116,9 +108,8 @@ function User() {
             } else {
                 setPaymentStatus('Payment Failed. Try again.');
                 setShowPopup(true);
+                setTimeout(() => setShowPopup(false), 3000);
             }
-
-            setTimeout(() => setShowPopup(false), 3000);
         })
         .catch(() => {
             setPaymentStatus('Payment Failed. Please check your connection.');
@@ -126,6 +117,7 @@ function User() {
             setTimeout(() => setShowPopup(false), 3000);
         });
     }
+    
 
     function handleUnsubscription() {
         const deleteTrans = { id: transactionDetails._id };
@@ -248,7 +240,6 @@ function User() {
                                     <button type="button" onClick={handlePayment} className="btn btn-primary">Pay Now</button>
                                 </div>
                             </form>
-                            {cvvverified && <p>Give a correct number for CVV</p>}
                         </div>
                     </div>
                 )}

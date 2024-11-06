@@ -8,7 +8,7 @@ import { ObjectId } from 'mongoose';
 import { PlanEvents, TransactionEvents, UserEvents } from '../EventHandling/eventemitterhandler';
 import { secret_token } from '../config/dotenv';
 import { sign } from 'jsonwebtoken';
-import { CreateAddress,SelectedPlan,CreatePlan,CreateUsers } from './interface';
+import { CreateAddress,SelectedPlan,CreatePlan,CreateUsers,CreateTransaction } from './interface';
 
 
 
@@ -237,23 +237,32 @@ class TransactionService {
     constructor() {
         this.TransactionEvents = new TransactionEvents();}
     // Create transaction
-    async createtransaction(transactiondetails: { userid: string; planid: string; amount:number;}) {
-      try {
-        const { userid, planid } = transactiondetails;
-        const useridverify = await User.findById(userid)
-        const planidverify = await Plan.findById(planid)
-        if (!useridverify || !planidverify) {
-          return null; 
+    async createtransaction(transactiondetails: CreateTransaction) {
+        try {
+            const { userid, planid, cvv } = transactiondetails;
+    
+            const useridverify = await User.findById(userid);
+            const planidverify = await Plan.findById(planid);
+    
+            if (!useridverify || !planidverify) {
+                return null; 
+            }
+    
+            const transaction = await Transaction.create(transactiondetails);
+    
+            if (cvv !== "123") {
+                await Transaction.findByIdAndUpdate(transaction._id, { paid: false });
+                return "Give a correct CVV";
+            }
+    
+            this.TransactionEvents.TransactionAdded();
+            return transaction;
+        } catch (error) {
+            console.error("Error:", error);
+            return null;
         }
-  
-        const transaction = await Transaction.create(transactiondetails);
-        this.TransactionEvents.TransactionAdded()
-        return transaction;
-      } catch (error) {
-        console.error("Error:", error);
-        return null;
-      }
     }
+    
   
     // Get transaction by ID
     async gettransaction(userid:string,transid:string,planid:string){

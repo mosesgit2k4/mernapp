@@ -1,19 +1,26 @@
 import mongoose, { Schema } from "mongoose";
 
 const TransactionSchema = new mongoose.Schema({
-    userid:{
+    userid: {
         type: Schema.Types.ObjectId,
         ref: "User",
     },
-    planid:{
-        type:Schema.Types.ObjectId,
-        ref:"Plan"
+    planid: {
+        type: Schema.Types.ObjectId,
+        ref: "Plan"
     },
-    amount:{
-        type:Number,
-        required:true
+    amount: {
+        type: Number,
+        required: true
     },
-    deleted: { type: Boolean, default: false }
+    deleted: { 
+        type: Boolean, 
+        default: false 
+    },
+    paid:{
+        type:Boolean,
+        default:true
+    }
 }, {
     timestamps: true
 })

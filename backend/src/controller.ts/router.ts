@@ -2,7 +2,6 @@ import { Router } from "express";
 import { UserControllers, PlanControllers, TransactionControllers } from "./usermanagement/controller";
 import { upload } from "../imageupload";
 import usersSessionHandler from "../authHandler/middlewareauthHandler";
-import Plan from "../model/planModel";
 
 export const userManagementRouter: Router = Router();
 

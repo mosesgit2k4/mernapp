@@ -262,10 +262,13 @@ function Admin() {
                                                <p>{user.description}</p>
                                             </div>
                                             <div>
-                                            {user.deleted? <div className="cancelledoractive">
-                                                <button className="btn btn-danger cancelbtn">Cancelled</button></div>:<div className="cancelledoractive">
-                                                    <button className="btn btn-success successbtn">Active</button>
+                                            {user.paid? <div className="cancelledoractive">
+                                                <button className="btn btn-success successbtn">Paid</button>
+
+                                                </div>:<div className="cancelledoractive">
+                                                    <button className="btn btn-danger cancelbtn">Failed</button>
                                                     </div>}
+                                                <i className="bi bi-x-circle crossbutton"></i>
                                             </div>
                                             </div>
                                             
