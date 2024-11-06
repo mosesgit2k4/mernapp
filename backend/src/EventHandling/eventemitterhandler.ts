@@ -133,9 +133,15 @@ class TransactionEvents{
         this.emittrans.on('TransactionDone',()=>{
             console.log("Transaction Done Successfully")
         })
+        this.emittrans.on('transactiontimedetails',(transactiontime)=>{
+            console.log(`${transactiontime}`)
+        })
     }
     TransactionAdded(){
         this.emittrans.emit('TransactionDone')
+    }
+    transactiontime(transactiontime:string){
+        this.emittrans.emit('transactiontimedetails',transactiontime)
     }
 
 }

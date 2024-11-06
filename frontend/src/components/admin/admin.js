@@ -1,15 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Navbar, Nav, Dropdown } from "react-bootstrap";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Navbar, Nav, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import Cookies from 'universal-cookie';
+import { io } from 'socket.io-client';
 import './admin.css';
-import Cookies from "universal-cookie";
+
+const socket = io('http://localhost:5000', {
+    withCredentials: true,
+    transports: ['websocket', 'polling']
+});
 
 function Admin() {
     const navigate = useNavigate();
     const [admin, setAdmin] = useState('');
-    const [activePage, setActivePage] = useState('');
+    const [activePage, setActivePage] = useState('admindetails');
     const [isMinimized, setIsMinimized] = useState(false);
     const [name, setName] = useState('');
     const [image, setImage] = useState('');
@@ -17,12 +23,11 @@ function Admin() {
     const [start, setStart] = useState('');
     const [end, setEnd] = useState('');
     const [error, setError] = useState('');
-    const [users,setuser] = useState([])
-    const [viewuser,setviewusers] = useState('')
-    const [transactionisfound,settransactionisfound] = useState(false)
-    const [plans,setPlans] = useState([])
-    const[amount,setamount] = useState('')
-//converting add plan image to base64
+    const [users, setUsers] = useState([]);
+    const [plans, setPlans] = useState([]);
+    const [amount, setAmount] = useState('');
+    const [notification, setNotification] = useState([]);
+
     function encodeFileBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -31,10 +36,9 @@ function Admin() {
             reader.onerror = (error) => reject(error);
         });
     }
-    //add plan submit button creates the plan
+
     async function handleAddingOfPlan(e) {
         e.preventDefault();
-
         if (!image) {
             setError("Please provide an image.");
             return;
@@ -43,15 +47,15 @@ function Admin() {
         try {
             const base64Image = await encodeFileBase64(image);
             let planDetails = {
-                name: name,
+                name,
                 image: base64Image,
-                description: description,
-                start: start,
-                end: end,
-                amount:amount
+                description,
+                start,
+                end,
+                amount
             };
 
-            fetch('api/usermanagement/plans', {
+            fetch('/api/usermanagement/plans', {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(planDetails)
@@ -66,11 +70,9 @@ function Admin() {
                         setDescription('');
                         setStart('');
                         setEnd('');
-                        setamount('')
-                        setTimeout(() => {
-                            setError('Plan Added Successfully')
-                            setActivePage('admindetails');
-                        }, 3000);
+                        setAmount('');
+                        setError('Plan Added Successfully');
+                        setActivePage('admindetails');
                     }
                 });
         } catch (error) {
@@ -80,48 +82,36 @@ function Admin() {
     }
 
     useEffect(() => {
-        //get the admin details which is logged in
+        socket.on('userLoggedin', (data) => {
+            setNotification((prev) => [...prev, data]);
+        });
+
         const cookie = new Cookies();
         const jwtToken = cookie.get('token_authenication');
-        fetch('api/usermanagement/myprofile', {
-            method: "GET",
-            headers: { "Authorization": `Bearer ${jwtToken}` }
+        fetch('/api/usermanagement/myprofile', {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${jwtToken}` }
         })
-        .then(response => response.json())
-        .then(data => setAdmin(data));
+            .then(response => response.json())
+            .then(data => setAdmin(data));
 
-        //get all users for veiwing user details at admin page
-        fetch('api/usermanagement/users', {
+        fetch('/api/usermanagement/users', {
             method: "GET"
-        }).then(response => {
-            return response.json();
-        }).then(data => {
-            setuser(data);
-        });
-        // get allplans 
+        }).then(response => response.json())
+          .then(data => setUsers(data));
+
         fetch('/api/usermanagement/plans', {
             method: "GET",
         }).then(response => response.json())
-          .then(data => setPlans(data))
+          .then(data => setPlans(data));
+
+        return () => {
+            socket.off('userLoggedin');  
+        };
     }, []);
-//Toggleing of sidebar
+
     function toggleSidebar() {
         setIsMinimized(!isMinimized);
-    }
-    //View Button function
-    function handleview(user){
-        let userdetails = {
-            userid :user._id
-        }
-        fetch('api/usermanagement/transactionhistory',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(userdetails)}).then(response=>response.json()).then(data=>{
-            if(data.message === "Transaction not found"){
-                settransactionisfound(false)
-            }
-            else{setviewusers(data)
-                settransactionisfound(true)
-            }
-            })
-        setActivePage('viewdetails')
     }
 
     return (
@@ -151,158 +141,124 @@ function Admin() {
             <div className={`content ${isMinimized ? 'full-width' : ''}`}>
                 {activePage === 'Addplans' && (
                     <div>
-                        <div className="adminplan-container">
-                            <form onSubmit={handleAddingOfPlan} className="adminplan-form">
-                                <h1>Add a New Plan</h1>
-                                <div className="form-group">
-                                    <label htmlFor="name">Plan Name:</label>
-                                    <input 
-                                        value={name}
-                                        id="name"
-                                        type="text"
-                                        placeholder="Enter a name for the plan.." 
-                                        onChange={e => setName(e.target.value)} 
-                                        className="form-input"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="image">Plan Image</label>
-                                    <input 
-                                        type="file"
-                                        id="image" 
-                                        onChange={e => setImage(e.target.files[0])} 
-                                        className="form-input"
-                                    />
-                                </div>
-                                <div>
-                                    <label htmlFor="description">Description</label>
-                                    <textarea 
-                                        value={description} 
-                                        id="description" 
-                                        rows="5" 
-                                        placeholder="Enter a description for the plan.." 
-                                        onChange={e => setDescription(e.target.value)}>
-                                    </textarea>
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="startdate">Start Date</label>
-                                    <input 
-                                        value={start}
-                                        type="date"
-                                        id="startdate"
-                                        onChange={e => setStart(e.target.value)} 
-                                        className="form-input"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="enddate">End Date</label>
-                                    <input 
-                                        type="date" 
-                                        id="enddate"
-                                        value={end}
-                                        onChange={e => setEnd(e.target.value)} 
-                                        className="form-input"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="amount">Amount:</label>
-                                    <input 
-                                        value={amount}
-                                        id="amount"
-                                        type="number"
-                                        onChange={e => setamount(e.target.value)} 
-                                        className="form-input"
-                                    />
-                                </div>
-                                <div>
-                                    <button type="submit" className="submit-btn">Add Plan</button>
-                                </div>
-                            </form>
-                        </div>
-                    {error && <p className="error-message">{error}</p>}</div>
+                        <form onSubmit={handleAddingOfPlan} className="adminplan-form">
+                            <h1>Add a New Plan</h1>
+                            <div className="form-group">
+                                <label htmlFor="name">Plan Name:</label>
+                                <input 
+                                    value={name}
+                                    id="name"
+                                    type="text"
+                                    placeholder="Enter a name for the plan.." 
+                                    onChange={e => setName(e.target.value)} 
+                                    className="form-input"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="image">Plan Image</label>
+                                <input 
+                                    type="file"
+                                    id="image" 
+                                    onChange={e => setImage(e.target.files[0])} 
+                                    className="form-input"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="description">Description</label>
+                                <textarea 
+                                    value={description} 
+                                    id="description" 
+                                    rows="5" 
+                                    placeholder="Enter a description for the plan.." 
+                                    onChange={e => setDescription(e.target.value)}>
+                                </textarea>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="startdate">Start Date</label>
+                                <input 
+                                    value={start}
+                                    type="date"
+                                    id="startdate"
+                                    onChange={e => setStart(e.target.value)} 
+                                    className="form-input"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="enddate">End Date</label>
+                                <input 
+                                    type="date" 
+                                    id="enddate"
+                                    value={end}
+                                    onChange={e => setEnd(e.target.value)} 
+                                    className="form-input"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="amount">Amount:</label>
+                                <input 
+                                    value={amount}
+                                    id="amount"
+                                    type="number"
+                                    onChange={e => setAmount(e.target.value)} 
+                                    className="form-input"
+                                />
+                            </div>
+                            <button type="submit" className="submit-btn">Add Plan</button>
+                        </form>
+                        {error && <p className="error-message">{error}</p>}
+                    </div>
                 )}
 
                 {activePage === 'userdetails' && (
                     <div className="container">
-                    <h1>Users</h1>
-                    <div className="plans-grid">
-                        {users.map(user => (
-                            <div key={user.id} className="card">
-                                <div className="content">
-                                    <div className="title">{user.firstName}</div>
-                                    <div className="title">{user.lastName}</div>
-                                    <div className="title">{user.email}</div>
-                                    <div className="price">
-                                        <img src={user.image} width={150} height={100} alt={user.name} />
-                                    </div>
-                                    <div className="mt-5 ml-3">
-                                        <button onClick={()=>handleview(user)} className="btn btn-primary">View</button>
+                        <h1>Users</h1>
+                        <div className="plans-grid">
+                            {users.map(user => (
+                                <div key={user.id} className="card">
+                                    <div className="content">
+                                        <div className="title">{user.firstName}</div>
+                                        <div className="title">{user.lastName}</div>
+                                        <div className="title">{user.email}</div>
+                                        <div className="price">
+                                            <img src={user.image} width={150} height={100} alt={user.name} />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
                 )}
 
-
-
-                {activePage === 'viewdetails' && (
-                    <>
-                    {transactionisfound ? (
-                        <div className="container">
-                                    <h1>Transaction </h1>
-                                    {viewuser.map(user =>(
-                                        <div className="cardfortransactionhistory">
-                                            <div className="alignmentsinsidecard" >
-                                                <div>
-                                                    <h1>{user.name}</h1>
-                                                </div>
-                                                <div>
-                                               <p>{user.description}</p>
-                                            </div>
-                                            <div>
-                                            {user.paid? <div className="cancelledoractive">
-                                                <button className="btn btn-success successbtn">Paid</button>
-
-                                                </div>:<div className="cancelledoractive">
-                                                    <button className="btn btn-danger cancelbtn">Failed</button>
-                                                    </div>}
-                                                <i className="bi bi-x-circle crossbutton"></i>
-                                            </div>
-                                            </div>
-                                            
-                                        </div>
-                                    ))
-                                    }
-                        </div>):
-                        (<div>No Plans for this User</div>)}
-                    </>
-                    )}
-
-
-
                 {activePage === 'plandetails' && (
-                   <div className="container">
-                   <h1>Plans</h1>
-                   <div className="plans-grid">
-                       {plans.map(plan => (
-                           <div key={plan.id} className="card">
-                               <div className="content">
-                                   <div className="title">{plan.name}</div>
-                                   <div className="price">
-                                       <img src={plan.image} width={100} height={100} alt={plan.name} />
-                                   </div>
-                                   <div className="description">{plan.description}</div>
-                               </div>
-                           </div>
-                       ))}
-                   </div>
-                   </div>
+                    <div className="container">
+                        <h1>Plans</h1>
+                        <div className="plans-grid">
+                            {plans.map(plan => (
+                                <div key={plan.id} className="card">
+                                    <div className="content">
+                                        <div className="title">{plan.name}</div>
+                                        <div className="price">
+                                            <img src={plan.image} width={100} height={100} alt={plan.name} />
+                                        </div>
+                                        <div className="description">{plan.description}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 )}
 
                 {activePage === 'admindetails' && (
-                    <div>Admin Page</div>
+                    <div>
+                        <h2>Admin Dashboard</h2>
+                        <ul>
+                            {notification.map((notif, index) => (
+                                <li key={index}>
+                                    User {notif.username} (ID: {notif.userId}) has logged in.
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
                 )}
             </div>
         </div>

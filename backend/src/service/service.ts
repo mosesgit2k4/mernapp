@@ -9,6 +9,7 @@ import { PlanEvents, TransactionEvents, UserEvents } from '../EventHandling/even
 import { secret_token } from '../config/dotenv';
 import { sign } from 'jsonwebtoken';
 import { CreateAddress,SelectedPlan,CreatePlan,CreateUsers,CreateTransaction } from './interface';
+import { notifyadminforlogin } from '../socketHandling/socket';
 
 
 
@@ -32,25 +33,29 @@ class UserService {
         }
     }
     //login user
-    async loginUser(password:string,userpassword:string,userid:ObjectId,userisadmin:string,name:string){
-            const passworMatch = await compare(password,userpassword);
-        if(passworMatch){
-            const payload = {_id:userid};
-            const jwtToken = sign(payload,secret_token,{expiresIn:'1h'})
-            const loginTime =  new Date().toISOString();
-            this.userEvents.logintime(name,loginTime)
-            const admins = await UserServices.getadmins()
-            if(userisadmin === "Admin"){
-                this.userEvents.Loggedinadmin(userid.toString())
-            }
-            else{
-                this.userEvents.Loggedin(userid.toString())
-                if(admins){
-                    this.userEvents.SendAdmin(userid.toString(),admins.toString())
+    async loginUser(password: string, userpassword: string, userid: ObjectId, userisadmin: string, name: string) {
+        const passworMatch = await compare(password, userpassword);
+        if (passworMatch) {
+            const payload = { _id: userid };
+            const jwtToken = sign(payload, secret_token, { expiresIn: '1h' });
+            const loginTime = new Date().toLocaleTimeString();
+    
+            this.userEvents.logintime(name, loginTime);
+            const admins = await UserServices.getadmins();
+    
+            if (userisadmin === "Admin") {
+                this.userEvents.Loggedinadmin(userid.toString());
+            } else {
+                this.userEvents.Loggedin(userid.toString());
+                if (admins) {
+                    this.userEvents.SendAdmin(userid.toString(), admins.toString());
+                    
+                    // Notify admin of the login event
+                    notifyadminforlogin({ userId: userid.toString(), username: name });
                 }
-                
             }
-            return {jwtToken,admin:userisadmin}
+    
+            return { jwtToken, admin: userisadmin };
         }
     }
     // Get user by ID
@@ -254,7 +259,8 @@ class TransactionService {
                 await Transaction.findByIdAndUpdate(transaction._id, { paid: false });
                 return "Give a correct CVV";
             }
-    
+            let transactiontime = new Date().toLocaleTimeString()
+            this.TransactionEvents.transactiontime(transactiontime)
             this.TransactionEvents.TransactionAdded();
             return transaction;
         } catch (error) {
@@ -317,30 +323,38 @@ class TransactionService {
             return responsemessage.servererror
         }
     }
-    async transactionhistory(userid:string){
+    async transactionhistory(userid: string) {
         try {
-            const transactionhistory = await Transaction.find({ userid });
-      
-            if (!transactionhistory || transactionhistory.length === 0) {
-              return 'No Transaction found'
+            const transactionHistory = await Transaction.find({ userid });
+          
+            if (!transactionHistory || transactionHistory.length === 0) {
+                return 'No Transaction found';
             }
-      
-            
-            const plandetails = await Promise.all(
-              transactionhistory.map(async (transaction) => {
-                const plan = await Plan.findById(transaction.planid).lean();
-                const details = { ...transaction.toObject(), 
-                    name: plan?.name || 'Unknown Plan',
-                    description:plan?.description}
-                return details;
-              })
+          
+            const planDetails = await Promise.all(
+                transactionHistory.map(async (transaction) => {
+                    const plan = await Plan.findById(transaction.planid).lean();
+                    const { createdAt, ...transactionWithoutCreatedAt } = transaction.toObject();
+                    
+                    const details = {
+                        ...transactionWithoutCreatedAt,
+                        createdAt: createdAt ? createdAt.toLocaleDateString() : 'Unknown Date',
+                        createdTime: createdAt ? createdAt.toLocaleTimeString() : 'Unknown Time',
+                        name: plan?.name || 'Unknown Plan',
+                        description: plan?.description
+                    };
+                    return details;
+                })
             ); 
-            return plandetails;
-          } catch (error) {
+            
+            return planDetails;
+        } catch (error) {
             console.error(error);
             return { message: responsemessage.servererror };
-          }
+        }
     }
+    
+    
 }
   
 export const UserServices = new UserService();
