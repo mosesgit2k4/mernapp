@@ -13,6 +13,7 @@ userManagementRouter.put('/confirmpassword', UserControllers.confirmpassword);
 userManagementRouter.get('/users',UserControllers.getallusers)
 userManagementRouter.get('/myprofile', usersSessionHandler, UserControllers.getuserprofile);
 userManagementRouter.put('/myprofile', usersSessionHandler, UserControllers.Updateuser);
+userManagementRouter.get('/notifications',UserControllers.getnotification)
 
 
 userManagementRouter.post("/plans",upload, PlanControllers.createplan);

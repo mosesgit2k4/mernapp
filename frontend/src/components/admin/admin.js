@@ -27,6 +27,8 @@ function Admin() {
     const [plans, setPlans] = useState([]);
     const [amount, setAmount] = useState('');
     const [notification, setNotification] = useState([]);
+    const [viewuser,setviewusers] = useState('')
+    const [transactionisfound,settransactionisfound] = useState(false)
 
     function encodeFileBase64(file) {
         return new Promise((resolve, reject) => {
@@ -83,7 +85,8 @@ function Admin() {
 
     useEffect(() => {
         socket.on('userLoggedin', (data) => {
-            setNotification((prev) => [...prev, data]);
+            const newNotification = `User ${data.username} (ID: ${data.userId}) has logged in.`;
+            setNotification((prevNotifications) => [newNotification, ...prevNotifications]);
         });
 
         const cookie = new Cookies();
@@ -94,7 +97,10 @@ function Admin() {
         })
             .then(response => response.json())
             .then(data => setAdmin(data));
-
+        fetch('/api/usermanagement/notificationS',{
+            method:"GET",
+        }).then(response=> response.json())
+        .then(data=>setNotification(data))
         fetch('/api/usermanagement/users', {
             method: "GET"
         }).then(response => response.json())
@@ -112,6 +118,21 @@ function Admin() {
 
     function toggleSidebar() {
         setIsMinimized(!isMinimized);
+    }
+    //View Button function
+    function handleview(user){
+        let userdetails = {
+            userid :user._id
+        }
+        fetch('api/usermanagement/transactionhistory',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(userdetails)}).then(response=>response.json()).then(data=>{
+            if(data.message === "Transaction not found"){
+                settransactionisfound(false)
+            }
+            else{setviewusers(data)
+                settransactionisfound(true)
+            }
+            })
+        setActivePage('viewdetails')
     }
 
     return (
@@ -223,6 +244,9 @@ function Admin() {
                                             <img src={user.image} width={150} height={100} alt={user.name} />
                                         </div>
                                     </div>
+                                    <div className="mt-5 ml-3">
+                                        <button onClick={()=>handleview(user)} className="btn btn-primary">View</button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -254,12 +278,45 @@ function Admin() {
                         <ul>
                             {notification.map((notif, index) => (
                                 <li key={index}>
-                                    User {notif.username} (ID: {notif.userId}) has logged in.
+                                    {notif.message}
                                 </li>
                             ))}
                         </ul>
                     </div>
                 )}
+                {activePage === 'viewdetails' && (
+                    <>
+                    {transactionisfound ? (
+                        <div className="container">
+                                    <h1>Transaction </h1>
+                                    {viewuser.map(user =>(
+                                        <div className="cardfortransactionhistory">
+                                            <div className="alignmentsinsidecard" >
+                                                <div>
+                                                    <h1>{user.name}</h1>
+                                                </div>
+                                                <div>
+                                               <p>{user.description}</p>
+                                            </div>
+                                            <div>
+                                            {user.paid? <div className="cancelledoractive">
+                                                <button className="btn btn-success successbtn">Paid</button>
+
+                                                </div>:<div className="cancelledoractive">
+                                                    <button className="btn btn-danger cancelbtn">Failed</button>
+                                                    </div>}
+                                                <i className="bi bi-x-circle crossbutton"></i>
+                                            </div>
+                                            </div>
+                                            
+                                        </div>
+                                    ))
+                                    }
+                        </div>):
+                        (<div>No Transaction for this User</div>)}
+                    </>
+                    )}
+
             </div>
         </div>
     );

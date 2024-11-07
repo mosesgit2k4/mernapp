@@ -1,6 +1,6 @@
 import { Server } from 'socket.io';
 import { loginadminnotify } from '../service/interface';
-
+import Notification from '../model/notification';
 let io: Server;
 
 export function initSocket(server: any) {
@@ -21,8 +21,10 @@ export function initSocket(server: any) {
     });
 }
 
-export function notifyadminforlogin(data: loginadminnotify) {
+export async function notifyadminforlogin(data: loginadminnotify) {
     if (io) {
         io.emit('userLoggedin', data);
+        const notificationMessage = `User ${data.username} (ID: ${data.userId}) has logged in.`;
+        await Notification.create({ message: notificationMessage });
     }
 }

@@ -10,6 +10,7 @@ import { secret_token } from '../config/dotenv';
 import { sign } from 'jsonwebtoken';
 import { CreateAddress,SelectedPlan,CreatePlan,CreateUsers,CreateTransaction } from './interface';
 import { notifyadminforlogin } from '../socketHandling/socket';
+import Notification from '../model/notification';
 
 
 
@@ -162,6 +163,14 @@ class UserService {
             return {message:"NO Admin Till Now"}
         }
         return admin.map(admins => admins.email);
+    }
+    async getnotification(){
+        const notification = await Notification.find().sort({createdAt: -1})
+        if(!notification){
+            return null
+        }
+        return notification
+
     }
 }
 class PlanService {

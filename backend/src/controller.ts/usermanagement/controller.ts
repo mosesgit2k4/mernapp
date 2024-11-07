@@ -70,7 +70,23 @@ class UserController {
             }
         }
     };
-
+    getnotification = async (req:Request,res:Response)=>{
+        try{
+            const notifications = await UserServices.getnotification()
+            if(!notifications){
+                throw new CustomError(responsemessage.nonotification,400)
+            }
+            res.status(200).json(notifications)
+        }
+        catch(error){
+            if (error instanceof CustomError) {
+                res.status(error.statusCode).json({ message: error.message });
+            } else {
+                console.error("Error:", error);
+                res.status(500).json({ message: responsemessage.servererror });
+            }
+        }
+    }
     // Forget password (generate OTP)
     forgetUser = async (req: Request, res: Response) => {
         try {
