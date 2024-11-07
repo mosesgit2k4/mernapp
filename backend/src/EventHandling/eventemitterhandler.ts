@@ -53,27 +53,7 @@ class UserEvents {
             console.log(email, ' has forgotten their password');
         });
 
-        this.emitter.on('Sendadminnotification', async (userid: string,admins :string) => {
-            if (admins === null) {
-                console.log("No admin emails found for notification.");
-                return;
-            }
-            const adminMessage = {
-                from: dotenv.gmail,
-                subject: "User Login Notification",
-                text: `User with ID: ${userid} has just logged in.`
-            };
-            const adminarr = admins.split(',')
-            adminarr.forEach(email => {
-                transporter.sendMail({ ...adminMessage, to: email }, (err, info) => {
-                    if (err) {
-                        console.log(`Failed to notify admin at ${email}: `, err);
-                    } else {
-                        console.log(`Admin at ${email} notified: `, info.response);
-                    }
-                });
-            });
-        });
+        
     }
     
     // Fetch admin emails from the database
@@ -107,9 +87,7 @@ class UserEvents {
         this.emitter.emit('Login Time', name, logintime);
     }
 
-    SendAdmin(userid: string,admins:string): void {
-        this.emitter.emit('Sendadminnotification', userid,admins);
-    }
+    
 }
 
 

@@ -17,7 +17,7 @@ function User() {
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [paymentStatus, setPaymentStatus] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
-    const [activePage, setActivePage] = useState("subscription");
+    const [activePage, setActivePage] = useState("userdashboard");
     const [payToSubscribe, setPayToSubscribe] = useState(false);
     const [cvv, setcvv] = useState('');
 
@@ -234,7 +234,7 @@ function User() {
                                 </div>
                                 <div>
                                    <label htmlFor="amount">Amount:</label>
-                                   <input type="number" id="amount" value={selectedPlan.amount}/>
+                                   <input type="text" id="amount" value={selectedPlan.amount}/>
                                 </div>
                                 <div className="buttonforpay">
                                     <button type="button" onClick={handlePayment} className="btn btn-primary">Pay Now</button>
@@ -244,7 +244,8 @@ function User() {
                     </div>
                 )}
                 {activePage === "userdashboard" && (
-                    <div>User Dashboard</div>
+                    <div>
+                        <h2>User Dashboard</h2></div>
                 )
                 }
                 {showPopup && (

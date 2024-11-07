@@ -138,7 +138,7 @@ function Admin() {
                 </div>
             </div>
 
-            <div className={`content ${isMinimized ? 'full-width' : ''}`}>
+            <div className={`content ${isMinimized ? 'full-width' : ''} paddingforaddplan`}>
                 {activePage === 'Addplans' && (
                     <div>
                         <form onSubmit={handleAddingOfPlan} className="adminplan-form">

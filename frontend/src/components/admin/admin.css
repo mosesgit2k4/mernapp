@@ -185,3 +185,8 @@ textarea {
     background-color: red;
     height: 30px;
 }
+.paddingforaddplan {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

@@ -48,9 +48,6 @@ class UserService {
             } else {
                 this.userEvents.Loggedin(userid.toString());
                 if (admins) {
-                    this.userEvents.SendAdmin(userid.toString(), admins.toString());
-                    
-                    // Notify admin of the login event
                     notifyadminforlogin({ userId: userid.toString(), username: name });
                 }
             }
