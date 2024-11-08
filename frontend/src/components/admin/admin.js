@@ -7,6 +7,7 @@ import Cookies from 'universal-cookie';
 import { io } from 'socket.io-client';
 import './admin.css';
 
+
 const socket = io('http://localhost:5000', {
     withCredentials: true,
     transports: ['websocket', 'polling']
@@ -27,8 +28,8 @@ function Admin() {
     const [plans, setPlans] = useState([]);
     const [amount, setAmount] = useState('');
     const [notification, setNotification] = useState([]);
-    const [viewuser,setviewusers] = useState('')
-    const [transactionisfound,settransactionisfound] = useState(false)
+    const [viewuser, setviewusers] = useState('')
+    const [transactionisfound, settransactionisfound] = useState(false)
 
     function encodeFileBase64(file) {
         return new Promise((resolve, reject) => {
@@ -97,43 +98,44 @@ function Admin() {
         })
             .then(response => response.json())
             .then(data => setAdmin(data));
-        fetch('/api/usermanagement/notifications',{
-            method:"GET",
-        }).then(response=> response.json())
-        .then(data=>
-           { console.log(data);
-             setNotification(data)})
+        fetch('/api/usermanagement/notifications', {
+            method: "GET",
+        }).then(response => response.json())
+            .then(data => {
+                console.log(data);
+                setNotification(data)
+            })
         fetch('/api/usermanagement/users', {
             method: "GET"
         }).then(response => response.json())
-          .then(data => setUsers(data));
+            .then(data => setUsers(data));
 
         fetch('/api/usermanagement/plans', {
             method: "GET",
         }).then(response => response.json())
-          .then(data => setPlans(data));
+            .then(data => setPlans(data));
 
         return () => {
-            socket.off('userLoggedin');  
+            socket.off('userLoggedin');
         };
     }, []);
 
     function toggleSidebar() {
         setIsMinimized(!isMinimized);
     }
-    //View Button function
-    function handleview(user){
+    function handleview(user) {
         let userdetails = {
-            userid :user._id
+            userid: user._id
         }
-        fetch('api/usermanagement/transactionhistory',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(userdetails)}).then(response=>response.json()).then(data=>{
-            if(data.message === "Transaction not found"){
+        fetch('api/usermanagement/transactionhistory', { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(userdetails) }).then(response => response.json()).then(data => {
+            if (data.message === "Transaction not found") {
                 settransactionisfound(false)
             }
-            else{setviewusers(data)
+            else {
+                setviewusers(data)
                 settransactionisfound(true)
             }
-            })
+        })
         setActivePage('viewdetails')
     }
 
@@ -169,61 +171,61 @@ function Admin() {
                             <h1>Add a New Plan</h1>
                             <div className="form-group">
                                 <label htmlFor="name">Plan Name:</label>
-                                <input 
+                                <input
                                     value={name}
                                     id="name"
                                     type="text"
-                                    placeholder="Enter a name for the plan.." 
-                                    onChange={e => setName(e.target.value)} 
+                                    placeholder="Enter a name for the plan.."
+                                    onChange={e => setName(e.target.value)}
                                     className="form-input"
                                 />
                             </div>
                             <div className="form-group">
                                 <label htmlFor="image">Plan Image</label>
-                                <input 
+                                <input
                                     type="file"
-                                    id="image" 
-                                    onChange={e => setImage(e.target.files[0])} 
+                                    id="image"
+                                    onChange={e => setImage(e.target.files[0])}
                                     className="form-input"
                                 />
                             </div>
                             <div>
                                 <label htmlFor="description">Description</label>
-                                <textarea 
-                                    value={description} 
-                                    id="description" 
-                                    rows="5" 
-                                    placeholder="Enter a description for the plan.." 
+                                <textarea
+                                    value={description}
+                                    id="description"
+                                    rows="5"
+                                    placeholder="Enter a description for the plan.."
                                     onChange={e => setDescription(e.target.value)}>
                                 </textarea>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="startdate">Start Date</label>
-                                <input 
+                                <input
                                     value={start}
                                     type="date"
                                     id="startdate"
-                                    onChange={e => setStart(e.target.value)} 
+                                    onChange={e => setStart(e.target.value)}
                                     className="form-input"
                                 />
                             </div>
                             <div className="form-group">
                                 <label htmlFor="enddate">End Date</label>
-                                <input 
-                                    type="date" 
+                                <input
+                                    type="date"
                                     id="enddate"
                                     value={end}
-                                    onChange={e => setEnd(e.target.value)} 
+                                    onChange={e => setEnd(e.target.value)}
                                     className="form-input"
                                 />
                             </div>
                             <div className="form-group">
                                 <label htmlFor="amount">Amount:</label>
-                                <input 
+                                <input
                                     value={amount}
                                     id="amount"
                                     type="number"
-                                    onChange={e => setAmount(e.target.value)} 
+                                    onChange={e => setAmount(e.target.value)}
                                     className="form-input"
                                 />
                             </div>
@@ -248,7 +250,7 @@ function Admin() {
                                         </div>
                                     </div>
                                     <div className="mt-5 ml-3">
-                                        <button onClick={()=>handleview(user)} className="btn btn-primary">View</button>
+                                        <button onClick={() => handleview(user)} className="btn btn-primary">View</button>
                                     </div>
                                 </div>
                             ))}
@@ -282,42 +284,42 @@ function Admin() {
                 )}
                 {activePage === 'viewdetails' && (
                     <>
-                    {transactionisfound ? (
-                        <div className="container">
-                                    <h1>Transaction </h1>
-                                    {viewuser.map(user =>(
-                                        <div className="cardfortransactionhistory">
-                                            <div className="alignmentsinsidecard" >
-                                                <div>
-                                                    <h1>{user.name}</h1>
-                                                </div>
-                                                <div>
-                                               <p>{user.description}</p>
+                        {transactionisfound ? (
+                            <div className="container">
+                                <h1>Transaction </h1>
+                                {viewuser.map(user => (
+                                    <div className="cardfortransactionhistory">
+                                        <div className="alignmentsinsidecard" >
+                                            <div>
+                                                <h1>{user.name}</h1>
                                             </div>
                                             <div>
-                                            {user.paid? <div className="cancelledoractive">
-                                                <button className="btn btn-success successbtn">Paid</button>
+                                                <p>{user.description}</p>
+                                            </div>
+                                            <div>
+                                                {user.paid ? <div className="cancelledoractive">
+                                                    <button className="btn btn-success successbtn">Paid</button>
 
-                                                </div>:<div className="cancelledoractive">
+                                                </div> : <div className="cancelledoractive">
                                                     <button className="btn btn-danger cancelbtn">Failed</button>
-                                                    </div>}
+                                                </div>}
                                                 <i className="bi bi-x-circle crossbutton"></i>
                                             </div>
-                                            </div>
-                                            
                                         </div>
-                                    ))
-                                    }
-                        </div>):
-                        (<div>No Transaction for this User</div>)}
+
+                                    </div>
+                                ))
+                                }
+                            </div>) :
+                            (<div>No Transaction for this User</div>)}
                     </>
-                    )}
+                )}
                 {activePage === 'notification' && (
                     <div>
-                         <ul className='notificationlist'>
+                        <ul className='notificationlist'>
                             {notification.map((notif, index) => (
                                 <li key={index}>
-                                    {notif.message|| notif}
+                                    {notif.message || notif}
                                 </li>
                             ))}
                         </ul>

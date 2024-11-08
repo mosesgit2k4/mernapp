@@ -191,5 +191,5 @@ textarea {
     align-items: center;
 }
 .notificationlist{
-    list-style-type:none;
+    list-style-type:decimal;
 }
