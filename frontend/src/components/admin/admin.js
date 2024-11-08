@@ -316,7 +316,7 @@ function Admin() {
                 )}
                 {activePage === 'notification' && (
                     <div>
-                        <ul className='notificationlist'>
+                        <ul>
                             {notification.map((notif, index) => (
                                 <li key={index}>
                                     {notif.message || notif}
