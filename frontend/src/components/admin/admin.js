@@ -97,10 +97,12 @@ function Admin() {
         })
             .then(response => response.json())
             .then(data => setAdmin(data));
-        fetch('/api/usermanagement/notificationS',{
+        fetch('/api/usermanagement/notifications',{
             method:"GET",
         }).then(response=> response.json())
-        .then(data=>setNotification(data))
+        .then(data=>
+           { console.log(data);
+             setNotification(data)})
         fetch('/api/usermanagement/users', {
             method: "GET"
         }).then(response => response.json())
@@ -144,6 +146,7 @@ function Admin() {
                         <Nav.Link onClick={() => setActivePage('Addplans')}>Add Plans</Nav.Link>
                         <Nav.Link onClick={() => setActivePage("userdetails")}>Users</Nav.Link>
                         <Nav.Link onClick={() => setActivePage('plandetails')}>Plans</Nav.Link>
+                        <Nav.Link onClick={() => setActivePage('notification')}>Notification</Nav.Link>
                     </Nav>
                     <Dropdown className="mt-auto dropup">
                         <Dropdown.Toggle variant="secondary" id="dropdown-basic">
@@ -275,13 +278,6 @@ function Admin() {
                 {activePage === 'admindetails' && (
                     <div>
                         <h2>Admin Dashboard</h2>
-                        <ul>
-                            {notification.map((notif, index) => (
-                                <li key={index}>
-                                    {notif.message}
-                                </li>
-                            ))}
-                        </ul>
                     </div>
                 )}
                 {activePage === 'viewdetails' && (
@@ -316,7 +312,17 @@ function Admin() {
                         (<div>No Transaction for this User</div>)}
                     </>
                     )}
-
+                {activePage === 'notification' && (
+                    <div>
+                         <ul className='notificationlist'>
+                            {notification.map((notif, index) => (
+                                <li key={index}>
+                                    {notif.message|| notif}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
         </div>
     );

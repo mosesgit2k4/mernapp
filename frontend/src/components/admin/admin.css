@@ -190,3 +190,6 @@ textarea {
     justify-content: center;
     align-items: center;
 }
+.notificationlist{
+    list-style-type:none;
+}
