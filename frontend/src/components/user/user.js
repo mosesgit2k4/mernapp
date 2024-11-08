@@ -5,6 +5,7 @@ import { Navbar, Nav, Dropdown } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import './user.css';
+import responsemessage from "../../responsemessage";
 
 function User() {
     const navigate = useNavigate();
@@ -24,10 +25,14 @@ function User() {
     function toggleSidebar() {
         setIsMinimized(!isMinimized);
     }
+    function CookieCall(){
+        const cookies = new Cookies()
+        const jwtToken = cookies.get("token_authenication")
+        return jwtToken
+    }
 
     useEffect(() => {
-        const cookies = new Cookies();
-        const jwtToken = cookies.get("token_authenication");
+        const jwtToken = CookieCall()
 
         fetch('api/usermanagement/transaction', {
             method: "GET",
@@ -83,18 +88,17 @@ function User() {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.message === "Give a correct CVV") {
-                // Show "Incorrect CVV" message for 3 seconds
-                setPaymentStatus('Incorrect CVV. Please try again.');
+            if (data.message === responsemessage.givecorrectcvv) {
+                
+                setPaymentStatus(responsemessage.incorrectcvv);
                 setShowPopup(true);
                 setTimeout(() => setShowPopup(false), 3000);
             } else if (data) {
-                setPaymentStatus('Payment Successful!');
+                setPaymentStatus(responsemessage.paymentsuccessful);
                 setIsSubscribed(true);
                 setShowPopup(true);
                 setTimeout(() => setShowPopup(false), 3000);
-                const cookies = new Cookies();
-                const jwtToken = cookies.get("token_authenication");
+                const jwtToken = CookieCall()
     
                 fetch('api/usermanagement/latestplan', {
                     method: "GET",
@@ -106,7 +110,7 @@ function User() {
                     setActivePage("userdashboard"); 
                 });
             } else {
-                setPaymentStatus('Payment Failed. Try again.');
+                setPaymentStatus(responsemessage.paymentfailed);
                 setShowPopup(true);
                 setTimeout(() => setShowPopup(false), 3000);
             }
