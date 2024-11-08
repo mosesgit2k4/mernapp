@@ -8,4 +8,4 @@ export default {
     gmail: process.env.GMAIL as string,
     password: process.env.PASSWORD as string
 }
-export const secret_token = "goodie"
+export const secret_token = process.env.SECRET_TOKEN as string
